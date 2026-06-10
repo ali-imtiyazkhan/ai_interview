@@ -4,6 +4,9 @@ import { getUsername } from "./controller/getuserName";
 import axios from "axios";
 const app = express();
 app.use(express.json());
+import cors from "cors"
+
+app.use(cors())
 
 app.post("/api.v1/pre-interview", async (req, res) => {
 
