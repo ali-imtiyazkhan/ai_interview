@@ -1,18 +1,20 @@
 import "./index.css";
 
 import { Form } from "./components/Form";
-import { useState } from "react";
 import { Result } from "./components/Result";
 import { Interview } from "./components/Interview";
 import { Toaster } from "sonner";
-export function App() {
+import { Navigate, Route, Routes } from "react-router-dom";
 
-  const [page, setPage] = useState<"from" | "result" | "interview">("from");
+export function App() {
   return (
     <div>
-      {page === "from" && <Form />}
-      {page === "result" && <Result />}
-      {page === "interview" && <Interview />}
+      <Routes>
+        <Route path="/" element={<Form />} />
+        <Route path="/interview" element={<Interview />} />
+        <Route path="/result" element={<Result />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
 
       <Toaster position="bottom-left" />
     </div>

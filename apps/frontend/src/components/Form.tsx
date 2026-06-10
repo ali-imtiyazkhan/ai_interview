@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { toast } from "sonner";
@@ -6,6 +7,7 @@ import axios from "axios";
 import { BACKEND_URL } from "@/lib/config";
 
 export function Form() {
+    const navigate = useNavigate();
     const [linkedin, setLinkedin] = useState("");
     const [github, setGithub] = useState("");
 
@@ -36,6 +38,7 @@ export function Form() {
             console.log(data);
 
             toast.success("Interview started!");
+            navigate("/interview");
         } catch (error) {
             console.error(error);
             toast.error("Something went wrong");

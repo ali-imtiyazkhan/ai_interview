@@ -2,6 +2,7 @@ import express from "express";
 import { PreIntrerviewBody } from "./types";
 import { getUsername } from "./controller/getuserName";
 import axios from "axios";
+import { Prisma } from "./db";
 const app = express();
 app.use(express.json());
 import cors from "cors"
@@ -33,14 +34,21 @@ app.post("/api.v1/pre-interview", async (req, res) => {
     }))
 
 
-    console.log(filtereduserrepos)
+    const interView = await Prisma.interView.create({
+        data: {
+            githunMetaData: JSON.stringify(filtereduserrepos),
+            status: "Pre",
+            linkdinMataData: "",
+            score: 0
 
-    // First Difficult part -- scraping linkdin data
+        }
+    })
 
+    console.log(interView)
 
-
-
-
+    res.status(201).json({
+        message: "interview created successfully"
+    })
 })
 
 
