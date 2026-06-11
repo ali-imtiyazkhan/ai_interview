@@ -1,159 +1,106 @@
-# Turborepo starter
+# AI Mock Interview Platform
 
-This Turborepo starter is maintained by the Turborepo core team.
+An AI-powered mock interview platform that generates personalized interview questions based on a candidate's real GitHub and LinkedIn profile data.
 
-## Using this example
+## How It Works
 
-Run the following command:
+1. **Candidate submits profiles** — Enters their GitHub and LinkedIn profile URLs
+2. **Data ingestion** — The platform fetches:
+   - **GitHub**: Repositories, READMEs, languages, topics
+   - **LinkedIn**: Profile, work experience, education, skills
+3. **Vector embedding** — All fetched data is chunked and embedded into a PostgreSQL vector database (pgvector)
+4. **AI question generation** — A local LLM (Ollama) generates contextual interview questions based on the candidate's actual work. For example:
+   - *"In this project you use Socket.IO — why not raw WebSockets?"*
+   - *"What are the ICE candidates in WebRTC that you implemented?"*
+5. **Interview session** — Questions are presented one by one; answers are recorded (text or audio)
+6. **AI evaluation** — Each answer is scored and given detailed feedback by the LLM
+7. **Results** — Final scores, strengths, weaknesses, and improvement suggestions
 
-```sh
-npx create-turbo@latest
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Runtime** | [Bun](https://bun.sh) 1.3.14 |
+| **Monorepo** | [Turborepo](https://turborepo.dev) 2.x |
+| **Backend** | Express 5 (TypeScript) |
+| **Frontend** | React 19, React Router 7, Tailwind CSS 4, shadcn/ui |
+| **Database** | PostgreSQL + pgvector |
+| **ORM** | Prisma 7 |
+| **LLM** | Ollama (local) — embeddings: `nomic-embed-text`, LLM: `gemma3` |
+| **Validation** | Zod 4 |
+| **Styling** | Tailwind CSS 4, OKLCH dark theme, custom animations |
+
+## Architecture
+
+```
+interview_promo/
+  apps/
+    backend/          # Express 5 API server
+      src/
+        routes/       # API route definitions
+        controllers/  # Request handlers
+        services/     # GitHub API, LinkedIn scraping, embeddings, LLM
+        middleware/    # Zod validation, error handling
+        schemas/      # Zod validation schemas
+        config/       # DB client, env config
+      prisma/         # Schema + migrations
+    frontend/         # React SPA
+      src/
+        components/   # Page components + UI primitives
+        styles/       # Tailwind globals + animations
+        lib/          # Config, utils
+  packages/
+    ui/               # Shared UI components (stub)
+    eslint-config/    # ESLint presets
+    typescript-config/# Shared tsconfigs
 ```
 
-## What's inside?
+## Prerequisites
 
-This Turborepo includes the following packages/apps:
+- [Bun](https://bun.sh) >= 1.3.14
+- [Ollama](https://ollama.ai) running locally with models:
+  - `nomic-embed-text` (embeddings)
+  - `gemma3` (LLM)
+- PostgreSQL with pgvector extension (or use the remote instance)
 
-### Apps and Packages
+## Getting Started
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+```bash
+# Install dependencies
+bun install
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+# Set up environment
+cp apps/backend/.env.example apps/backend/.env
+# Edit .env with your configuration
 
-### Utilities
+# Run database migrations
+cd apps/backend && bunx prisma migrate dev
 
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+# Start both apps in development mode
+cd ../..
+bun run dev
 ```
 
-Without global `turbo`, use your package manager:
+The backend runs on `http://localhost:3001` and the frontend on `http://localhost:3000`.
 
-```sh
-cd my-turborepo
-npx turbo build
-bun dlx turbo build
-bun exec turbo build
-```
+## API Endpoints
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+| Method | Path | Description |
+|---|---|---|
+| POST | `/api/v1/pre-interview` | Submit GitHub + LinkedIn URLs, create interview |
+| POST | `/api/v1/pre-interview/embed-github` | Embed GitHub data (repos, READMEs, languages) |
+| POST | `/api/v1/pre-interview/embed-linkedin` | Embed LinkedIn data (profile, experience, education) |
+| POST | `/api/v1/interview/:id/start` | Generate AI questions and start interview |
+| POST | `/api/v1/interview/:id/answer` | Submit answer for evaluation |
+| GET | `/api/v1/interview/:id/result` | Get interview results with scores and feedback |
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## Environment Variables
 
-```sh
-turbo build --filter=docs
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-bun exec turbo build --filter=docs
-bun exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-bun exec turbo dev
-bun exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-bun exec turbo dev --filter=web
-bun exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-bun exec turbo login
-bun exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-bun exec turbo link
-bun exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+| Variable | Default | Description |
+|---|---|---|
+| `PORT` | `3001` | Backend server port |
+| `DATABASE_URL` | — | PostgreSQL connection string |
+| `GITHUB_TOKEN` | — | GitHub personal access token (optional, raises rate limit) |
+| `OLLAMA_URL` | `http://localhost:11434` | Ollama API URL |
+| `OLLAMA_EMBEDDING_MODEL` | `nomic-embed-text` | Model for embeddings |
+| `OLLAMA_LLM_MODEL` | `gemma3` | Model for question generation and evaluation |
