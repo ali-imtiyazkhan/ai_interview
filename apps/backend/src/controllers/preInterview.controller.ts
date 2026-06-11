@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { prisma } from "../config/db";
+import type { Prisma } from "../../generated/prisma/client";
 import { extractUsername } from "../utils/username";
 import { fetchUserRepos } from "../services/github.service";
 import { scrapeLinkedInProfile } from "../services/linkedin.service";
@@ -8,15 +9,14 @@ export async function createPreInterview(req: Request, res: Response) {
   const { github, linkedin } = req.body as { github: string; linkedin: string };
 
   const githubUsername = extractUsername(github);
-  const linkedinUsername = extractUsername(linkedin);
 
   const repos = await fetchUserRepos(githubUsername);
   const linkedinProfile = await scrapeLinkedInProfile(linkedin);
 
   const interview = await prisma.interview.create({
     data: {
-      githubMetaData: repos,
-      linkedinMetaData: linkedinProfile,
+      githubMetaData: repos as unknown as Prisma.InputJsonValue,
+      linkedinMetaData: linkedinProfile as unknown as Prisma.InputJsonValue,
       status: "Pre",
       score: 0,
     },

@@ -31,7 +31,7 @@ export function Form() {
                 github,
             }, {
                 headers: {
-                    "content-type": "appliction/json"
+                    "Content-Type": "application/json"
                 }
             }
             )
