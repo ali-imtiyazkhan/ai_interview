@@ -26,7 +26,7 @@ export function Form() {
                 github,
             });
 
-            const { data } = await axios.post(`${BACKEND_URL}/api/v1/pre-intreview`, {
+            const { data } = await axios.post(`${BACKEND_URL}/api/v1/pre-interview`, {
                 linkedin,
                 github,
             }, {

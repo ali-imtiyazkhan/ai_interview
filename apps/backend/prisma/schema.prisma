@@ -1,41 +1,98 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider        = "prisma-client"
+  output          = "../generated/prisma"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-}
-
-model InterView {
-  id              String          @id @default(uuid())
-  githunMetaData  Json
-  linkdinMataData Json
-  status          InterviewStatus
-  score           Int
-  converstaions   Messages[]
-}
-
-model Messages {
-  id          String       @id @default(uuid())
-  message     String
-  type        MessagesType
-  interView   InterView?   @relation(fields: [interViewId], references: [id])
-  interViewId String?
-}
-
-enum MessagesType {
-  User
-  Assistant
+  provider   = "postgresql"
+  extensions = [vector]
 }
 
 enum InterviewStatus {
   Pre
-  Inprogress
+  InProgress
   Done
+}
+
+enum EmbeddingSourceType {
+  GITHUB_REPO
+  GITHUB_README
+  GITHUB_CODE
+  GITHUB_LANGUAGES
+  LINKEDIN_PROFILE
+  LINKEDIN_EXPERIENCE
+  LINKEDIN_EDUCATION
+  LINKEDIN_SKILLS
+  RESUME
+}
+
+enum QuestionCategory {
+  TECHNICAL
+  BEHAVIORAL
+  PROJECT_DEEP_DIVE
+  SKILL_ASSESSMENT
+  SYSTEM_DESIGN
+  CODING
+}
+
+model Interview {
+  id               String           @id @default(uuid())
+  candidateName    String?
+  jobRole          String?
+  experienceLevel  String?
+  githubMetaData   Json?
+  linkedinMetaData Json?
+  status           InterviewStatus
+  score            Int              @default(0)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  embeddings Embedding[]
+  questions  Question[]
+  answers    Answer[]
+}
+
+model Embedding {
+  id          String                @id @default(uuid())
+  interviewId String
+  interview   Interview             @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  sourceType  EmbeddingSourceType
+  chunkText   String
+  embedding   Unsupported("vector(1536)")
+  metadata    Json?
+  createdAt   DateTime              @default(now())
+
+  @@index([interviewId])
+  @@index([sourceType])
+}
+
+model Question {
+  id          String           @id @default(uuid())
+  interviewId String
+  interview   Interview        @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  category    QuestionCategory
+  question    String
+  order       Int
+  createdAt   DateTime         @default(now())
+
+  answers Answer[]
+
+  @@index([interviewId])
+}
+
+model Answer {
+  id         String   @id @default(uuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  interviewId String
+  interview  Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  transcript String?
+  audioUrl   String?
+  score      Int?
+  feedback   String?
+  createdAt  DateTime @default(now())
+
+  @@index([questionId])
+  @@index([interviewId])
 }
