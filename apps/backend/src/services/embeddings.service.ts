@@ -1,21 +1,26 @@
 import { env } from "../config/env";
 
+const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
+
 export async function generateEmbedding(text: string): Promise<number[]> {
-  const res = await fetch(`${env.ollamaUrl}/api/embeddings`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: env.ollamaEmbeddingModel,
-      prompt: text,
-    }),
-  });
+  const res = await fetch(
+    `${GEMINI_BASE}/${env.geminiEmbeddingModel}:embedContent?key=${env.geminiApiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: { parts: [{ text }] },
+      }),
+    },
+  );
 
   if (!res.ok) {
-    throw new Error(`Ollama embedding failed: ${res.statusText}`);
+    const err = await res.text().catch(() => "");
+    throw new Error(`Gemini embedding failed (${res.status}): ${err}`);
   }
 
-  const data = (await res.json()) as { embedding: number[] };
-  return data.embedding;
+  const data = (await res.json()) as { embedding?: { values?: number[] } };
+  return data.embedding?.values ?? [];
 }
 
 export function chunkText(text: string, maxChunkSize = 1000): string[] {

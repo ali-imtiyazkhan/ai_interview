@@ -61,15 +61,15 @@ export function Form() {
     setCurrentStep(0);
 
     try {
-      // Step 1: GitHub
+      //  GitHub
       setCurrentStep(0);
       await new Promise((r) => setTimeout(r, 600));
 
-      // Step 2: LinkedIn
+      //  LinkedIn
       setCurrentStep(1);
       await new Promise((r) => setTimeout(r, 400));
 
-      // Step 3: API call (generate)
+      //  API call
       setCurrentStep(2);
 
       const { data } = await axios.post(`${BACKEND_URL}/api/v1/pre-interview`, {
@@ -197,11 +197,11 @@ export function Form() {
                     className={cn(
                       "flex size-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-medium transition-all duration-500",
                       status === "done" &&
-                        "border-emerald-500/50 bg-emerald-500/20 text-emerald-400",
+                      "border-emerald-500/50 bg-emerald-500/20 text-emerald-400",
                       status === "active" &&
-                        "border-accent/50 bg-accent/10 text-accent",
+                      "border-accent/50 bg-accent/10 text-accent",
                       status === "pending" &&
-                        "border-border/30 text-muted-foreground/40",
+                      "border-border/30 text-muted-foreground/40",
                     )}
                   >
                     {status === "done" ? (

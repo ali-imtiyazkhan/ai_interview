@@ -1,10 +1,36 @@
 import { env } from "../config/env";
 import type { QuestionCategory } from "../../generated/prisma/enums";
 
+const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
+
 interface GenerateQuestionsParams {
-  context: string;        // aggregated candidate context from embeddings
+  context: string;
   count: number;
   categories: QuestionCategory[];
+}
+
+async function geminiGenerate(prompt: string): Promise<string> {
+  const res = await fetch(
+    `${GEMINI_BASE}/${env.geminiLlmModel}:generateContent?key=${env.geminiApiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.7, maxOutputTokens: 8192 },
+      }),
+    },
+  );
+
+  if (!res.ok) {
+    const err = await res.text().catch(() => "");
+    throw new Error(`Gemini API error (${res.status}): ${err}`);
+  }
+
+  const data = (await res.json()) as {
+    candidates?: { content?: { parts?: { text?: string }[] } }[];
+  };
+  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
 }
 
 export async function generateQuestions(params: GenerateQuestionsParams) {
@@ -20,20 +46,8 @@ ${context}
 Return ONLY a JSON array of objects with "question" and "category" fields.
 `.trim();
 
-  const res = await fetch(`${env.ollamaUrl}/api/generate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: env.ollamaLlmModel,
-      prompt,
-      stream: false,
-    }),
-  });
-
-  if (!res.ok) throw new Error(`LLM generate failed: ${res.statusText}`);
-
-  const data = (await res.json()) as { response: string };
-  return parseQuestionsResponse(data.response);
+  const text = await geminiGenerate(prompt);
+  return parseQuestionsResponse(text);
 }
 
 export async function evaluateAnswer(question: string, context: string, answer: string) {
@@ -48,20 +62,8 @@ Answer: ${answer}
 Return a JSON object with: { "score": number (0-100), "feedback": string, "strengths": string[], "weaknesses": string[] }
 `.trim();
 
-  const res = await fetch(`${env.ollamaUrl}/api/generate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: env.ollamaLlmModel,
-      prompt,
-      stream: false,
-    }),
-  });
-
-  if (!res.ok) throw new Error(`LLM evaluate failed: ${res.statusText}`);
-
-  const data = (await res.json()) as { response: string };
-  return parseEvaluationResponse(data.response);
+  const text = await geminiGenerate(prompt);
+  return parseEvaluationResponse(text);
 }
 
 function parseQuestionsResponse(raw: string): { question: string; category: string }[] {

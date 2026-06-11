@@ -15,5 +15,5 @@ app.use(errorHandler);
 
 app.listen(env.port, () => {
   console.log(`Backend running on http://localhost:${env.port}`);
-  console.log(`Ollama: ${env.ollamaUrl} | Model: ${env.ollamaLlmModel}`);
+  console.log(`Gemini model: ${env.geminiLlmModel} | Embedding: ${env.geminiEmbeddingModel}`);
 });

@@ -4,7 +4,7 @@ export const env = {
   port: parseInt(process.env["PORT"] ?? "3001", 10),
   databaseUrl: process.env["DATABASE_URL"] ?? "",
   githubToken: process.env["GITHUB_TOKEN"] ?? "",
-  ollamaUrl: process.env["OLLAMA_URL"] ?? "http://localhost:11434",
-  ollamaEmbeddingModel: process.env["OLLAMA_EMBEDDING_MODEL"] ?? "nomic-embed-text",
-  ollamaLlmModel: process.env["OLLAMA_LLM_MODEL"] ?? "gemma3",
+  geminiApiKey: process.env["GEMINI_API_KEY"] ?? "",
+  geminiLlmModel: process.env["GEMINI_LLM_MODEL"] ?? "gemini-2.0-flash",
+  geminiEmbeddingModel: process.env["GEMINI_EMBEDDING_MODEL"] ?? "text-embedding-004",
 };
