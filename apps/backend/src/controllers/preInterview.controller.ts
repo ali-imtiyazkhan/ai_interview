@@ -46,6 +46,7 @@ export async function createPreInterview(req: Request, res: Response) {
       message: "Pre-interview data collected",
     });
   } catch (error) {
+    console.error("Pre-interview error:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
     const message = error instanceof Error ? error.message : "Failed to create pre-interview";
     res.status(500).json({ message });
   }
