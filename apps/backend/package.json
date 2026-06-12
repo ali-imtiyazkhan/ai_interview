@@ -7,7 +7,8 @@
     "dev": "bun --hot src/index.ts",
     "start": "bun src/index.ts",
     "test": "bun test",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "prisma": "bunx prisma"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -26,6 +27,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "pg": "^8.21.0",
     "zod": "^4.4.3"
   }
 }

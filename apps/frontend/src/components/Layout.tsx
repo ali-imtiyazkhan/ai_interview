@@ -1,23 +1,29 @@
 import { type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
 
-const routeNames: Record<string, string> = {
-  "/": "Setup",
-  "/interview": "Interview",
-  "/result": "Results",
-};
+interface RouteInfo {
+  name: string;
+  icon: string;
+}
 
-const routeIcons: Record<string, string> = {
-  "/": "⚡",
-  "/interview": "🎙️",
-  "/result": "📊",
-};
+const routes: [string, RouteInfo][] = [
+  ["/", { name: "Setup", icon: "⚡" }],
+  ["/interview", { name: "Interview", icon: "🎙️" }],
+  ["/result", { name: "Results", icon: "📊" }],
+];
+
+function matchRoute(pathname: string): RouteInfo {
+  for (const [pattern, info] of routes) {
+    if (pathname === pattern || pathname.startsWith(pattern + "/")) {
+      return info;
+    }
+  }
+  return { name: "Interview AI", icon: "🎯" };
+}
 
 export function Layout({ children }: { children: ReactNode }) {
   const location = useLocation();
-  const routeName = routeNames[location.pathname] ?? "Interview AI";
-  const routeIcon = routeIcons[location.pathname] ?? "🎯";
+  const { name: routeName, icon: routeIcon } = matchRoute(location.pathname);
 
   return (
     <div className="relative flex min-h-screen w-full flex-col">

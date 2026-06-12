@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { toast } from "sonner";
 import axios from "axios";
 import { cn } from "@/lib/utils";
 import { BACKEND_URL } from "@/lib/config";
+import { Skeleton } from "./Skeleton";
 import {
   ArrowLeft,
   Check,
@@ -23,6 +23,7 @@ import {
   User,
   Briefcase,
   Clock,
+  Target,
 } from "lucide-react";
 
 interface QuestionResult {
@@ -157,13 +158,53 @@ export function Result() {
 
   if (loading) {
     return (
-      <div className="flex flex-1 items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-3xl bg-accent/10">
-            <Loader className="size-8 animate-spin text-accent" />
+      <div className="mx-auto w-full max-w-3xl flex-1 py-4">
+        {/* Header skeleton */}
+        <div className="mb-8 flex flex-col items-center text-center">
+          <Skeleton className="mx-auto mb-4 size-20 rounded-3xl" />
+          <Skeleton className="h-8 w-48" />
+          <div className="mt-4 flex items-center gap-3">
+            <Skeleton className="h-6 w-24 rounded-full" />
+            <Skeleton className="h-4 w-32" />
           </div>
-          <h2 className="text-2xl font-semibold text-foreground">Loading Results</h2>
-          <p className="mt-2 text-muted-foreground">Fetching your interview results...</p>
+        </div>
+
+        {/* Score ring skeleton */}
+        <div className="mb-8 flex flex-col items-center gap-4 rounded-2xl border border-border/50 bg-card/40 p-8 backdrop-blur-xl">
+          <Skeleton className="size-[140px] rounded-full" />
+          <div className="text-center space-y-2">
+            <Skeleton className="mx-auto h-6 w-28" />
+            <Skeleton className="mx-auto h-4 w-24" />
+          </div>
+        </div>
+
+        {/* Category skeletons */}
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-xl border border-border/50 p-4">
+              <Skeleton className="mx-auto mb-2 size-4" />
+              <Skeleton className="mx-auto mb-1 h-3 w-20" />
+              <Skeleton className="mx-auto h-6 w-12" />
+            </div>
+          ))}
+        </div>
+
+        {/* Question card skeletons */}
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-2xl border border-border/50 bg-card/40 p-6 backdrop-blur-xl">
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <div className="flex-1 space-y-3">
+                  <Skeleton className="h-5 w-24 rounded-full" />
+                  <Skeleton className="h-5 w-full" />
+                  <Skeleton className="h-5 w-3/4" />
+                </div>
+                <Skeleton className="size-12 shrink-0 rounded-xl" />
+              </div>
+              <Skeleton className="mb-3 h-4 w-20" />
+              <Skeleton className="h-16 w-full rounded-lg" />
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -249,25 +290,36 @@ export function Result() {
       </div>
 
       {/* Score overview */}
-      <div className="animate-fade-in-scale mb-8 flex flex-col items-center gap-4 rounded-2xl border border-border/50 bg-card/40 p-8 backdrop-blur-xl shadow-[0_0_60px_-20px_oklch(0.6_0.25_280/0.08)]">
-        <ScoreRing score={averageScore} size={140} />
-        <div className="text-center">
-          <p className={cn("text-lg font-semibold", grade.color)}>{grade.label}</p>
-          <p className="text-sm text-muted-foreground">Overall Score</p>
+      <div className="animate-fade-in-scale relative mb-8 overflow-hidden rounded-2xl border border-border/50 bg-card/40 p-8 backdrop-blur-xl shadow-[0_0_60px_-20px_oklch(0.6_0.25_280/0.08)]">
+        <div className="absolute inset-0 bg-gradient-to-br from-accent/[0.03] to-transparent" />
+        <div className="relative flex flex-col items-center gap-4">
+          <ScoreRing score={averageScore} size={140} />
+          <div className="text-center">
+            <p className={cn("text-lg font-semibold", grade.color)}>{grade.label}</p>
+            <p className="text-sm text-muted-foreground">Overall Score</p>
+          </div>
         </div>
       </div>
 
       {/* Category breakdown */}
-      {Object.keys(categoryScores).length > 1 && (
+      {Object.keys(categoryScores).length > 0 && (
         <div className="animate-fade-in-up mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {Object.entries(categoryScores).map(([cat, scores]) => {
             const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
             const cfg = getCategoryConfig(cat);
             return (
-              <div key={cat} className={cn("rounded-xl border p-3 text-center", cfg.color.replace("text-", "border-").split(" ")[0])}>
-                <cfg.icon className="mx-auto mb-1 size-4" />
+              <div
+                key={cat}
+                className="group rounded-xl border border-border/50 bg-card/40 p-4 text-center backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:border-accent/30 hover:shadow-[0_0_30px_-8px_oklch(0.6_0.25_280/0.12)]"
+              >
+                <div className={cn(
+                  "mx-auto mb-2 flex size-10 items-center justify-center rounded-lg bg-secondary/50 transition-all duration-300 group-hover:scale-110",
+                  getScoreColor(avg).replace("text-", "bg-").replace("400", "500/15"),
+                )}>
+                  <cfg.icon className={cn("size-5", getScoreColor(avg))} />
+                </div>
                 <p className="text-xs font-medium text-muted-foreground">{cfg.label}</p>
-                <p className={cn("text-lg font-bold", getScoreColor(avg))}>{avg}</p>
+                <p className={cn("mt-0.5 text-xl font-bold", getScoreColor(avg))}>{avg}</p>
               </div>
             );
           })}
@@ -283,7 +335,7 @@ export function Result() {
           return (
             <div
               key={i}
-              className="animate-fade-in-up rounded-2xl border border-border/50 bg-card/40 p-6 backdrop-blur-xl shadow-[0_0_40px_-12px_oklch(0.6_0.25_280/0.06)]"
+              className="group animate-fade-in-up rounded-2xl border border-border/50 bg-card/40 p-6 backdrop-blur-xl shadow-[0_0_40px_-12px_oklch(0.6_0.25_280/0.06)] transition-all duration-300 hover:border-accent/20 hover:shadow-[0_0_40px_-8px_oklch(0.6_0.25_280/0.12)]"
               style={{ animationDelay: `${i * 80}ms` }}
             >
               {/* Question header */}
@@ -303,11 +355,11 @@ export function Result() {
                   </p>
                 </div>
                 {q.score !== null && (
-                  <div className="flex shrink-0 flex-col items-center">
-                    <span className={cn("text-2xl font-bold", getScoreColor(q.score))}>
+                  <div className="flex shrink-0 flex-col items-center rounded-xl bg-secondary/30 px-3 py-2">
+                    <span className={cn("text-xl font-bold tabular-nums", getScoreColor(q.score))}>
                       {q.score}
                     </span>
-                    <span className={cn("text-xs font-medium", qGrade.color)}>{qGrade.label}</span>
+                    <span className={cn("text-[10px] font-medium uppercase tracking-wider", qGrade.color)}>{qGrade.label}</span>
                   </div>
                 )}
               </div>

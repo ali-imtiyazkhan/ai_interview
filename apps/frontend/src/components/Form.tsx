@@ -147,7 +147,7 @@ export function Form() {
 
         <form ref={formRef} onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">
+            <label htmlFor="github" className="text-xs font-medium text-muted-foreground">
               GitHub Profile
             </label>
             <div className="relative">
@@ -158,6 +158,7 @@ export function Form() {
                 )}
               />
               <Input
+                id="github"
                 value={github}
                 onChange={(e) => setGithub(e.target.value)}
                 placeholder="https://github.com/username"
@@ -170,7 +171,7 @@ export function Form() {
           {!loading && (
             <>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">
+                <label htmlFor="candidateName" className="text-xs font-medium text-muted-foreground">
                   Your Name
                 </label>
                 <div className="relative">
@@ -181,6 +182,7 @@ export function Form() {
                     )}
                   />
                   <Input
+                    id="candidateName"
                     value={candidateName}
                     onChange={(e) => setCandidateName(e.target.value)}
                     placeholder="e.g. Jane Doe"
@@ -191,7 +193,7 @@ export function Form() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">
+                  <label htmlFor="jobRole" className="text-xs font-medium text-muted-foreground">
                     Target Role
                   </label>
                   <div className="relative">
@@ -199,6 +201,7 @@ export function Form() {
                       className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
                     />
                     <Input
+                      id="jobRole"
                       value={jobRole}
                       onChange={(e) => setJobRole(e.target.value)}
                       placeholder="e.g. Senior Frontend"
@@ -208,7 +211,7 @@ export function Form() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">
+                  <label htmlFor="experienceLevel" className="text-xs font-medium text-muted-foreground">
                     Experience
                   </label>
                   <div className="relative">
@@ -216,6 +219,7 @@ export function Form() {
                       className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
                     />
                     <Input
+                      id="experienceLevel"
                       value={experienceLevel}
                       onChange={(e) => setExperienceLevel(e.target.value)}
                       placeholder="e.g. 5 years"
@@ -228,7 +232,7 @@ export function Form() {
           )}
 
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">
+            <label htmlFor="linkedin" className="text-xs font-medium text-muted-foreground">
               LinkedIn Profile
             </label>
             <div className="relative">
@@ -239,6 +243,7 @@ export function Form() {
                 )}
               />
               <Input
+                id="linkedin"
                 value={linkedin}
                 onChange={(e) => setLinkedin(e.target.value)}
                 placeholder="https://linkedin.com/in/username"
@@ -254,12 +259,13 @@ export function Form() {
               {showLinkedinInput ? "Hide manual input" : "LinkedIn scraping unavailable — paste your profile instead?"}
             </button>
             {showLinkedinInput && (
-              <div className="mt-2 space-y-1.5">
-                <label className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+              <div className="mt-2 animate-expand-in space-y-1.5">
+                <label htmlFor="linkedinText" className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                   <FileText className="size-3.5" />
                   Your LinkedIn Profile (paste your headline, skills, experience, education)
                 </label>
                 <Textarea
+                  id="linkedinText"
                   value={linkedinText}
                   onChange={(e) => setLinkedinText(e.target.value)}
                   placeholder="Senior Software Engineer at Acme Corp&#10;Skills: TypeScript, React, Node.js, Python&#10;&#10;Experience:&#10;  - Lead Engineer at Acme Corp (2020-Present)&#10;    Architected microservices handling 1M+ requests/day&#10;  - Full Stack Developer at Beta Inc (2018-2020)&#10;    Built real-time collaboration features&#10;&#10;Education:&#10;  - B.S. Computer Science, University of Example (2014-2018)"
@@ -272,8 +278,9 @@ export function Form() {
 
           <Button
             type="submit"
+            variant="accent"
             disabled={loading}
-            className="relative mt-2 h-11 w-full overflow-hidden rounded-xl text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-accent/25"
+            className="relative mt-2 h-11 w-full rounded-xl bg-gradient-to-r from-accent to-accent/80 bg-[length:200%_100%] text-sm font-semibold animate-gradient-shift"
           >
             {loading ? (
               <span className="flex items-center gap-2">

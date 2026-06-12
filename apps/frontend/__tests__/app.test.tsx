@@ -23,7 +23,7 @@ describe("App", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText("Loading Results")).toBeTruthy();
+    expect(screen.getByText("Results")).toBeTruthy();
   });
 
   test("redirects unknown routes to /", () => {
