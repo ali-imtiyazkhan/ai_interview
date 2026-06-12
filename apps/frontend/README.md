@@ -1,21 +1,18 @@
-# bun-react-tailwind-shadcn-template
+# frontend
 
-To install dependencies:
+React 19 SPA for the AI Mock Interview Platform.
 
-```bash
-bun install
-```
-
-To start a development server:
+## Development
 
 ```bash
-bun dev
+bun run dev
 ```
 
-To run for production:
+Runs on `http://localhost:3000`. Proxies API calls to the backend on `http://localhost:3001`.
+
+## Production Build
 
 ```bash
-bun start
+bun run build
+bun run start
 ```
-
-This project was created using `bun init` in bun v1.3.14. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
