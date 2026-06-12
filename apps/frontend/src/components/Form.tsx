@@ -2,13 +2,14 @@ import { useState, useRef, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 import { toast } from "sonner";
 import axios from "axios";
 import { cn } from "@/lib/utils";
 import { BACKEND_URL } from "@/lib/config";
-import { Code, UserRound, ArrowRight, Check, Loader, CircleAlert } from "lucide-react";
+import { Code, UserRound, ArrowRight, Check, Loader, CircleAlert, FileText } from "lucide-react";
 
-type StepId = "github" | "linkedin" | "generate" | "done";
+type StepId = "create" | "github-embed" | "linkedin-embed" | "done";
 
 interface Step {
   id: StepId;
@@ -16,15 +17,17 @@ interface Step {
 }
 
 const steps: Step[] = [
-  { id: "github", label: "Fetching GitHub repositories..." },
-  { id: "linkedin", label: "Analyzing LinkedIn profile..." },
-  { id: "generate", label: "Preparing your interview..." },
+  { id: "create", label: "Creating your interview session..." },
+  { id: "github-embed", label: "Fetching & embedding GitHub repositories..." },
+  { id: "linkedin-embed", label: "Embedding LinkedIn profile..." },
 ];
 
 export function Form() {
   const navigate = useNavigate();
   const [github, setGithub] = useState("");
   const [linkedin, setLinkedin] = useState("");
+  const [linkedinText, setLinkedinText] = useState("");
+  const [showLinkedinInput, setShowLinkedinInput] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [shake, setShake] = useState(false);
@@ -61,29 +64,40 @@ export function Form() {
     setCurrentStep(0);
 
     try {
-      //  GitHub
+      //  Create interview session
       setCurrentStep(0);
-      await new Promise((r) => setTimeout(r, 600));
-
-      //  LinkedIn
-      setCurrentStep(1);
-      await new Promise((r) => setTimeout(r, 400));
-
-      //  API call
-      setCurrentStep(2);
-
       const { data } = await axios.post(`${BACKEND_URL}/api/v1/pre-interview`, {
         github,
         linkedin,
       });
+      const interviewId: string = data.id;
+
+      //  Embed GitHub data
+      setCurrentStep(1);
+      await axios.post(`${BACKEND_URL}/api/v1/pre-interview/embed-github`, {
+        interviewId,
+        githubUrl: github,
+      });
+
+      //  Embed LinkedIn data
+      setCurrentStep(2);
+      try {
+        await axios.post(`${BACKEND_URL}/api/v1/pre-interview/embed-linkedin`, {
+          interviewId,
+          linkedinUrl: linkedin,
+          profileText: linkedinText || undefined,
+        });
+      } catch {
+        // LinkedIn embedding may fail if no data provided — non-blocking
+      }
 
       setCurrentStep(3);
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 400));
 
       toast.success("Interview ready!", {
         icon: <Check className="size-4" />,
       });
-      navigate(`/interview/${data.id}`);
+      navigate(`/interview/${interviewId}`);
     } catch (error) {
       setLoading(false);
       const message = axios.isAxiosError(error)
@@ -166,6 +180,28 @@ export function Form() {
                 disabled={loading}
               />
             </div>
+            <button
+              type="button"
+              onClick={() => setShowLinkedinInput(!showLinkedinInput)}
+              className="text-xs text-muted-foreground hover:text-accent transition-colors mt-1"
+            >
+              {showLinkedinInput ? "Hide manual input" : "LinkedIn scraping unavailable — paste your profile instead?"}
+            </button>
+            {showLinkedinInput && (
+              <div className="mt-2 space-y-1.5">
+                <label className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                  <FileText className="size-3.5" />
+                  Your LinkedIn Profile (paste your headline, skills, experience, education)
+                </label>
+                <Textarea
+                  value={linkedinText}
+                  onChange={(e) => setLinkedinText(e.target.value)}
+                  placeholder="Senior Software Engineer at Acme Corp&#10;Skills: TypeScript, React, Node.js, Python&#10;&#10;Experience:&#10;  - Lead Engineer at Acme Corp (2020-Present)&#10;    Architected microservices handling 1M+ requests/day&#10;  - Full Stack Developer at Beta Inc (2018-2020)&#10;    Built real-time collaboration features&#10;&#10;Education:&#10;  - B.S. Computer Science, University of Example (2014-2018)"
+                  className="min-h-[140px] resize-none text-sm"
+                  disabled={loading}
+                />
+              </div>
+            )}
           </div>
 
           <Button

@@ -1,9 +1,8 @@
 import type { LinkedInProfile } from "../types";
 
 export async function scrapeLinkedInProfile(_url: string): Promise<LinkedInProfile> {
-  // TODO: Implement with Playwright
-  // For now, return a stub — LinkedIn scraping requires a headless browser
-  // due to JS rendering and anti-bot measures.
+  // LinkedIn scraping requires a headless browser and is prone to anti-bot measures.
+  // For now, return empty — the frontend should collect manual profile data.
   return {
     name: "",
     headline: null,

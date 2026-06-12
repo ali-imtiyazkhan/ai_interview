@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { validate } from "../middleware/validate";
-import { preInterviewSchema, answerSchema } from "../schemas/interview.schema";
+import { preInterviewSchema, answerSchema, embedGithubSchema, embedLinkedinSchema } from "../schemas/interview.schema";
 import { createPreInterview } from "../controllers/preInterview.controller";
 import { startInterview, submitAnswer, getResult } from "../controllers/interview.controller";
 import { embedGithubData } from "../controllers/github.controller";
@@ -12,10 +12,10 @@ const router = Router();
 router.post("/pre-interview", validate(preInterviewSchema), createPreInterview);
 
 // Embed GitHub data (code, READMEs, languages) into vector DB
-router.post("/pre-interview/embed-github", embedGithubData);
+router.post("/pre-interview/embed-github", validate(embedGithubSchema), embedGithubData);
 
 // Embed LinkedIn data into vector DB
-router.post("/pre-interview/embed-linkedin", embedLinkedinData);
+router.post("/pre-interview/embed-linkedin", validate(embedLinkedinSchema), embedLinkedinData);
 
 // Start interview: generates questions from embedded context
 router.post("/interview/:id/start", startInterview);

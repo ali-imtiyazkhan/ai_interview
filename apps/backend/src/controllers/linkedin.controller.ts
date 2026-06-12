@@ -4,45 +4,56 @@ import { scrapeLinkedInProfile } from "../services/linkedin.service";
 import { generateEmbedding, chunkText } from "../services/embeddings.service";
 
 export async function embedLinkedinData(req: Request, res: Response) {
-  const { interviewId, linkedinUrl } = req.body as { interviewId: string; linkedinUrl: string };
+  try {
+    const { interviewId, linkedinUrl, profileText } = req.body as {
+      interviewId: string;
+      linkedinUrl?: string;
+      profileText?: string;
+    };
 
-  const interview = await prisma.interview.findUnique({ where: { id: interviewId } });
-  if (!interview) {
-    res.status(404).json({ message: "Interview not found" });
-    return;
-  }
+    const interview = await prisma.interview.findUnique({ where: { id: interviewId } });
+    if (!interview) {
+      res.status(404).json({ message: "Interview not found" });
+      return;
+    }
 
-  const profile = await scrapeLinkedInProfile(linkedinUrl);
+    // Try scraping first, fall back to manual text
+    let sourceText = profileText ?? "";
 
-  // Embed profile overview
-  const profileText = `Name: ${profile.name}\nHeadline: ${profile.headline ?? ""}\nSkills: ${profile.skills.join(", ")}`;
-  const embedding = await generateEmbedding(profileText);
-  await prisma.$executeRaw`
-    INSERT INTO "Embedding" (id, "interviewId", "sourceType", "chunkText", embedding, metadata)
-    VALUES (gen_random_uuid(), ${interviewId}, 'LINKEDIN_PROFILE', ${profileText}, ${`[${embedding.join(",")}]`}::vector, ${JSON.stringify({ source: "linkedin" })})
-  `;
+    if (linkedinUrl && !profileText) {
+      const profile = await scrapeLinkedInProfile(linkedinUrl);
+      if (profile.skills.length > 0 || profile.experience.length > 0) {
+        sourceText = [
+          `Name: ${profile.name}`,
+          `Headline: ${profile.headline ?? ""}`,
+          `Skills: ${profile.skills.join(", ")}`,
+          ...profile.experience.map(
+            (e) => `Experience: ${e.title} at ${e.company} (${e.duration}) - ${e.description ?? ""}`,
+          ),
+          ...profile.education.map(
+            (e) => `Education: ${e.degree ?? ""} in ${e.field ?? ""} at ${e.school} (${e.duration})`,
+          ),
+        ].join("\n\n");
+      }
+    }
 
-  // Embed experience
-  for (const exp of profile.experience) {
-    const text = `Role: ${exp.title} at ${exp.company}\nDuration: ${exp.duration}\n${exp.description ?? ""}`;
-    const chunks = chunkText(text);
+    if (!sourceText) {
+      res.status(400).json({ message: "No LinkedIn profile data provided. Either provide a valid URL or paste your profile text." });
+      return;
+    }
+
+    const chunks = chunkText(sourceText);
     for (const chunk of chunks) {
       const emb = await generateEmbedding(chunk);
       await prisma.$executeRaw`
         INSERT INTO "Embedding" (id, "interviewId", "sourceType", "chunkText", embedding, metadata)
-        VALUES (gen_random_uuid(), ${interviewId}, 'LINKEDIN_EXPERIENCE', ${chunk}, ${`[${emb.join(",")}]`}::vector, ${JSON.stringify({ company: exp.company, title: exp.title })})
+        VALUES (gen_random_uuid(), ${interviewId}, 'LINKEDIN_PROFILE', ${chunk}, ${`[${emb.join(",")}]`}::vector, ${JSON.stringify({ source: "manual-linkedin" })})
       `;
     }
-  }
 
-  // Embed education
-  for (const edu of profile.education) {
-    const text = `School: ${edu.school}\nDegree: ${edu.degree ?? ""}\nField: ${edu.field ?? ""}\nDuration: ${edu.duration}`;
-    const emb = await generateEmbedding(text);
-    await prisma.$executeRaw`
-      INSERT INTO "Embedding" (id, "interviewId", "sourceType", "chunkText", embedding, metadata)
-      VALUES (gen_random_uuid(), ${interviewId}, 'LINKEDIN_EDUCATION', ${text}, ${`[${emb.join(",")}]`}::vector, ${JSON.stringify({ school: edu.school })})`;
+    res.json({ message: `LinkedIn profile embedded (${chunks.length} chunks)` });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to embed LinkedIn data";
+    res.status(500).json({ message });
   }
-
-  res.json({ message: "LinkedIn profile embedded successfully" });
 }

@@ -1,15 +1,20 @@
 # backend
 
-To install dependencies:
+Express 5 API server for the AI Mock Interview Platform.
+
+## Setup
 
 ```bash
+cp .env.example .env
+# Edit .env with your Gemini API key and database URL
 bun install
+bunx prisma migrate dev
 ```
 
-To run:
+## Development
 
 ```bash
-bun run index.ts
+bun run dev
 ```
 
-This project was created using `bun init` in bun v1.3.14. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+Runs on `http://localhost:3001`.

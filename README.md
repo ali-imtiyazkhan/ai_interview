@@ -9,7 +9,7 @@ An AI-powered mock interview platform that generates personalized interview ques
    - **GitHub**: Repositories, READMEs, languages, topics
    - **LinkedIn**: Profile, work experience, education, skills
 3. **Vector embedding** — All fetched data is chunked and embedded into a PostgreSQL vector database (pgvector)
-4. **AI question generation** — A local LLM (Ollama) generates contextual interview questions based on the candidate's actual work. For example:
+4. **AI question generation** — Google Gemini generates contextual interview questions based on the candidate's actual work. For example:
    - *"In this project you use Socket.IO — why not raw WebSockets?"*
    - *"What are the ICE candidates in WebRTC that you implemented?"*
 5. **Interview session** — Questions are presented one by one; answers are recorded (text or audio)
@@ -26,7 +26,7 @@ An AI-powered mock interview platform that generates personalized interview ques
 | **Frontend** | React 19, React Router 7, Tailwind CSS 4, shadcn/ui |
 | **Database** | PostgreSQL + pgvector |
 | **ORM** | Prisma 7 |
-| **LLM** | Ollama (local) — embeddings: `nomic-embed-text`, LLM: `gemma3` |
+| **LLM** | Google Gemini — embeddings: `text-embedding-004`, LLM: `gemini-2.0-flash` |
 | **Validation** | Zod 4 |
 | **Styling** | Tailwind CSS 4, OKLCH dark theme, custom animations |
 
@@ -58,9 +58,7 @@ interview_promo/
 ## Prerequisites
 
 - [Bun](https://bun.sh) >= 1.3.14
-- [Ollama](https://ollama.ai) running locally with models:
-  - `nomic-embed-text` (embeddings)
-  - `gemma3` (LLM)
+- [Google Gemini API key](https://aistudio.google.com/apikey)
 - PostgreSQL with pgvector extension (or use the remote instance)
 
 ## Getting Started
@@ -101,6 +99,6 @@ The backend runs on `http://localhost:3001` and the frontend on `http://localhos
 | `PORT` | `3001` | Backend server port |
 | `DATABASE_URL` | — | PostgreSQL connection string |
 | `GITHUB_TOKEN` | — | GitHub personal access token (optional, raises rate limit) |
-| `OLLAMA_URL` | `http://localhost:11434` | Ollama API URL |
-| `OLLAMA_EMBEDDING_MODEL` | `nomic-embed-text` | Model for embeddings |
-| `OLLAMA_LLM_MODEL` | `gemma3` | Model for question generation and evaluation |
+| `GEMINI_API_KEY` | — | Google Gemini API key |
+| `GEMINI_LLM_MODEL` | `gemini-2.0-flash` | Model for question generation and evaluation |
+| `GEMINI_EMBEDDING_MODEL` | `text-embedding-004` | Model for embeddings |
