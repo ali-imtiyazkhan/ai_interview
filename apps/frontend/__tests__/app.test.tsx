@@ -4,14 +4,14 @@ import { MemoryRouter } from "react-router-dom";
 import { App } from "../src/App";
 
 describe("App", () => {
-  test("renders the form on /", () => {
+  test("renders the landing page on /", () => {
     render(
       <MemoryRouter initialEntries={["/"]}>
         <App />
       </MemoryRouter>,
     );
 
-    expect(screen.getByText("Start Your Interview")).toBeTruthy();
+    expect(screen.getByText(/interview ai/i)).toBeTruthy();
     expect(screen.getByPlaceholderText("https://github.com/username")).toBeTruthy();
     expect(screen.getByPlaceholderText("https://linkedin.com/in/username")).toBeTruthy();
   });
@@ -33,6 +33,6 @@ describe("App", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText("Start Your Interview")).toBeTruthy();
+    expect(screen.getByPlaceholderText("https://github.com/username")).toBeTruthy();
   });
 });
