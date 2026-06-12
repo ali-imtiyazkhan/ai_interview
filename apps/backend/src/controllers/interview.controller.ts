@@ -19,9 +19,15 @@ export async function startInterview(req: Request, res: Response) {
 
     const ctx = interview as Interview & { embeddings: Embedding[] };
 
-    const context = ctx.embeddings
-      .map((e: Embedding) => `[${e.sourceType}] ${e.chunkText}`)
-      .join("\n\n");
+    const metadataParts: string[] = [];
+    if (ctx.candidateName) metadataParts.push(`Name: ${ctx.candidateName}`);
+    if (ctx.jobRole) metadataParts.push(`Target Role: ${ctx.jobRole}`);
+    if (ctx.experienceLevel) metadataParts.push(`Experience Level: ${ctx.experienceLevel}`);
+
+    const context = [
+      ...metadataParts,
+      ...ctx.embeddings.map((e: Embedding) => `[${e.sourceType}] ${e.chunkText}`),
+    ].join("\n\n");
 
     const generated = await generateQuestions({
       context: context || "No candidate data available yet",

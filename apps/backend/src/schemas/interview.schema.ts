@@ -4,6 +4,9 @@ export const preInterviewSchema = z.object({
   linkedin: z.string().url("LinkedIn URL is required"),
   github: z.string().url("GitHub URL is required"),
   linkedinProfileText: z.string().optional(),
+  candidateName: z.string().max(200).optional(),
+  jobRole: z.string().max(200).optional(),
+  experienceLevel: z.string().max(100).optional(),
 });
 
 export const interviewIdSchema = z.object({

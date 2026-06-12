@@ -1,0 +1,24 @@
+import { describe, expect, test } from "bun:test";
+import { extractUsername } from "../src/utils/username";
+
+describe("extractUsername", () => {
+  test("extracts username from standard GitHub URL", () => {
+    expect(extractUsername("https://github.com/octocat")).toBe("octocat");
+  });
+
+  test("extracts username with trailing slash", () => {
+    expect(extractUsername("https://github.com/octocat/")).toBe("octocat");
+  });
+
+  test("extracts username from LinkedIn URL", () => {
+    expect(extractUsername("https://linkedin.com/in/johndoe")).toBe("johndoe");
+  });
+
+  test("handles empty URL", () => {
+    expect(extractUsername("")).toBe("");
+  });
+
+  test("handles URL with no path", () => {
+    expect(extractUsername("https://github.com")).toBe("github.com");
+  });
+});
