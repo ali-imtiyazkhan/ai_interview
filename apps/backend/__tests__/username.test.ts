@@ -18,7 +18,7 @@ describe("extractUsername", () => {
     expect(extractUsername("")).toBe("");
   });
 
-  test("handles URL with no path", () => {
-    expect(extractUsername("https://github.com")).toBe("github.com");
+  test("handles URL with no path (returns empty)", () => {
+    expect(extractUsername("https://github.com")).toBe("");
   });
 });

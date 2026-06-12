@@ -15,6 +15,15 @@ export async function createPreInterview(req: Request, res: Response) {
       experienceLevel?: string;
     };
 
+    if (!github.includes("github.com")) {
+      res.status(400).json({ message: "GitHub URL must contain github.com" });
+      return;
+    }
+    if (!linkedin.includes("linkedin.com")) {
+      res.status(400).json({ message: "LinkedIn URL must contain linkedin.com" });
+      return;
+    }
+
     const githubUsername = extractUsername(github);
 
     const repos = await fetchUserRepos(githubUsername);

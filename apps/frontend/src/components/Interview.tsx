@@ -166,6 +166,26 @@ export function Interview() {
     }
   }
 
+  function handleSkip() {
+    if (!currentQuestion || !id) return;
+
+    if (currentIndex + 1 < totalQuestions) {
+      setCurrentIndex((i) => i + 1);
+      setAnswer("");
+      setAudioBlob(null);
+      setRecordingTime(0);
+      toast.info("Question skipped", {
+        icon: <ArrowRight className="size-4" />,
+      });
+    } else {
+      setCompleted(true);
+      toast.success("Interview complete!", {
+        icon: <Sparkles className="size-4" />,
+      });
+      setTimeout(() => navigate(`/result?id=${id}`), 800);
+    }
+  }
+
   async function startRecording() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -186,13 +206,13 @@ export function Interview() {
           clearInterval(timerRef.current);
           timerRef.current = null;
         }
-        setRecordingTime(0);
       };
 
       mediaRecorderRef.current = recorder;
       recorder.start();
       setIsRecording(true);
       setAudioBlob(null);
+      setRecordingTime(0);
 
       timerRef.current = setInterval(() => {
         setRecordingTime((t) => t + 1);
@@ -229,11 +249,15 @@ export function Interview() {
 
   useEffect(() => {
     return () => {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((t) => t.stop());
       }
       if (timerRef.current) {
         clearInterval(timerRef.current);
+        timerRef.current = null;
       }
     };
   }, []);
@@ -449,6 +473,16 @@ export function Interview() {
                 </span>
               )}
             </Button>
+
+            <button
+              type="button"
+              onClick={handleSkip}
+              disabled={submitting}
+              className="flex items-center gap-1.5 rounded-lg border border-border/30 px-3 py-2 text-xs font-medium text-muted-foreground transition-all hover:bg-accent/10 hover:text-accent disabled:opacity-50"
+            >
+              Skip
+              <ArrowRight className="size-3.5" />
+            </button>
 
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground/50">
               <Clock className="size-3.5" />

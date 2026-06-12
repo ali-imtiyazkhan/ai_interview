@@ -10,6 +10,10 @@ interface GenerateQuestionsParams {
 }
 
 async function geminiGenerate(prompt: string): Promise<string> {
+  if (!env.geminiApiKey) {
+    throw new Error("GEMINI_API_KEY is not configured");
+  }
+
   const res = await fetch(
     `${GEMINI_BASE}/${env.geminiLlmModel}:generateContent?key=${env.geminiApiKey}`,
     {
@@ -34,16 +38,21 @@ async function geminiGenerate(prompt: string): Promise<string> {
 }
 
 export async function generateQuestions(params: GenerateQuestionsParams) {
-  const { context, count } = params;
+  const { context, count, categories } = params;
+
+  const categoriesList = categories.length > 0
+    ? categories.join(", ")
+    : "TECHNICAL, BEHAVIORAL, PROJECT_DEEP_DIVE";
 
   const prompt = `
 You are an interview assistant. Based on the following candidate profile, generate ${count} personalized interview questions.
-Cover technical skills, project experience, and behavioral aspects.
+Cover these categories evenly: ${categoriesList}.
 
 Candidate Profile:
 ${context}
 
 Return ONLY a JSON array of objects with "question" and "category" fields.
+The "category" must be one of: ${categoriesList}.
 `.trim();
 
   const text = await geminiGenerate(prompt);

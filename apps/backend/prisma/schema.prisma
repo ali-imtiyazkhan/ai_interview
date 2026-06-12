@@ -79,6 +79,8 @@ model Question {
   answers Answer[]
 
   @@index([interviewId])
+  @@index([interviewId, order])
+  @@unique([interviewId, order])
 }
 
 model Answer {

@@ -63,7 +63,11 @@ export async function startInterview(req: Request, res: Response) {
 export async function submitAnswer(req: Request, res: Response) {
   try {
     const { id } = req.params as { id: string };
-    const { questionId, transcript } = req.body as { questionId: string; transcript: string };
+    const { questionId, transcript, audioUrl } = req.body as {
+      questionId: string;
+      transcript?: string;
+      audioUrl?: string;
+    };
 
     const question = await prisma.question.findUnique({
       where: { id: questionId },
@@ -75,22 +79,53 @@ export async function submitAnswer(req: Request, res: Response) {
       return;
     }
 
+    // Check for duplicate answer
+    const existingAnswer = await prisma.answer.findFirst({
+      where: { questionId, interviewId: id },
+    });
+    if (existingAnswer) {
+      res.status(409).json({ message: "This question has already been answered" });
+      return;
+    }
+
     const embeddings = await prisma.embedding.findMany({ where: { interviewId: id } });
     const context = embeddings.map((e: Embedding) => e.chunkText).join("\n\n");
 
     // Evaluate
-    const evaluation = await evaluateAnswer(question.question, context, transcript);
+    const evaluation = await evaluateAnswer(question.question, context, transcript ?? "");
 
-    // Save answer
+    // Save answer (strengths/weaknesses embedded in feedback as structured JSON)
+    const feedbackParts = [evaluation.feedback];
+    if (evaluation.strengths?.length) {
+      feedbackParts.push("\n\n---STRENGTHS---\n" + (evaluation.strengths as string[]).map((s) => `- ${s}`).join("\n"));
+    }
+    if (evaluation.weaknesses?.length) {
+      feedbackParts.push("\n\n---WEAKNESSES---\n" + (evaluation.weaknesses as string[]).map((w) => `- ${w}`).join("\n"));
+    }
+
     const answer = await prisma.answer.create({
       data: {
         questionId,
         interviewId: id,
-        transcript,
+        transcript: transcript ?? null,
+        audioUrl: audioUrl ?? null,
         score: evaluation.score,
-        feedback: evaluation.feedback,
+        feedback: feedbackParts.join(""),
       },
     });
+
+    // Check if all questions answered → mark interview as Done
+    const totalQuestions = await prisma.question.count({ where: { interviewId: id } });
+    const answeredQuestions = await prisma.answer.groupBy({
+      by: ["questionId"],
+      where: { interviewId: id },
+    });
+    if (totalQuestions > 0 && answeredQuestions.length >= totalQuestions) {
+      await prisma.interview.update({
+        where: { id },
+        data: { status: "Done" },
+      });
+    }
 
     res.json({ answer, evaluation });
   } catch (error) {
@@ -128,17 +163,40 @@ export async function getResult(req: Request, res: Response) {
       ? Math.round(totalScore / iv.questions.length)
       : 0;
 
+    function parseStrengths(fb: string | null): string[] | null {
+      if (!fb) return null;
+      const m = fb.match(/---STRENGTHS---\n([\s\S]*?)(?:\n\n---WEAKNESSES---|$)/);
+      if (!m?.[1]) return null;
+      return m[1].split("\n").map((s: string) => s.replace(/^- /, "")).filter(Boolean);
+    }
+
+    function parseWeaknesses(fb: string | null): string[] | null {
+      if (!fb) return null;
+      const m = fb.match(/---WEAKNESSES---\n([\s\S]*)$/);
+      if (!m?.[1]) return null;
+      return m[1].split("\n").map((s: string) => s.replace(/^- /, "")).filter(Boolean);
+    }
+
     res.json({
       id: iv.id,
       status: iv.status,
+      candidateName: iv.candidateName,
+      jobRole: iv.jobRole,
+      experienceLevel: iv.experienceLevel,
       averageScore: avgScore,
-      questions: iv.questions.map((q: Question & { answers: Answer[] }) => ({
-        question: q.question,
-        category: q.category,
-        answer: q.answers[0]?.transcript ?? null,
-        score: q.answers[0]?.score ?? null,
-        feedback: q.answers[0]?.feedback ?? null,
-      })),
+      questions: iv.questions.map((q: Question & { answers: Answer[] }) => {
+        const fb = q.answers[0]?.feedback ?? null;
+        return {
+          question: q.question,
+          category: q.category,
+          answer: q.answers[0]?.transcript ?? null,
+          audioUrl: q.answers[0]?.audioUrl ?? null,
+          score: q.answers[0]?.score ?? null,
+          feedback: fb?.replace(/---STRENGTHS---[\s\S]*$/, "").trim() ?? null,
+          strengths: parseStrengths(fb),
+          weaknesses: parseWeaknesses(fb),
+        };
+      }),
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to get results";

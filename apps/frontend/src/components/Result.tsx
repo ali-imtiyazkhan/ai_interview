@@ -19,20 +19,29 @@ import {
   Terminal,
   BrainCircuit,
   Trophy,
-  Target,
+  Play,
+  User,
+  Briefcase,
+  Clock,
 } from "lucide-react";
 
 interface QuestionResult {
   question: string;
   category: string;
   answer: string | null;
+  audioUrl: string | null;
   score: number | null;
   feedback: string | null;
+  strengths: string[] | null;
+  weaknesses: string[] | null;
 }
 
 interface InterviewResult {
   id: string;
   status: string;
+  candidateName: string | null;
+  jobRole: string | null;
+  experienceLevel: string | null;
   averageScore: number;
   questions: QuestionResult[];
 }
@@ -178,21 +187,65 @@ export function Result() {
     );
   }
 
-  const { averageScore, questions } = result;
+  const { averageScore, questions, candidateName, jobRole, experienceLevel, status } = result;
   const grade = getGrade(averageScore);
   const answeredCount = questions.filter((q) => q.answer !== null).length;
 
+  // Per-category breakdown
+  const categoryScores = questions.reduce<Record<string, number[]>>((acc, q) => {
+    if (q.score !== null) {
+      (acc[q.category] ??= []).push(q.score);
+    }
+    return acc;
+  }, {});
+
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 py-4">
-      {/* Header */}
+      {/* Header with metadata */}
       <div className="mb-8 animate-fade-in-down text-center">
         <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-3xl bg-accent/10">
           <Trophy className="size-8 text-accent" />
         </div>
-        <h2 className="text-2xl font-semibold text-foreground">Interview Complete</h2>
-        <p className="mt-1 text-muted-foreground">
-          {answeredCount} of {questions.length} questions answered
-        </p>
+        <h2 className="text-2xl font-semibold text-foreground">Interview Results</h2>
+
+        {/* Candidate metadata */}
+        {(candidateName || jobRole || experienceLevel) && (
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
+            {candidateName && (
+              <span className="flex items-center gap-1.5">
+                <User className="size-3.5" />
+                {candidateName}
+              </span>
+            )}
+            {jobRole && (
+              <span className="flex items-center gap-1.5">
+                <Briefcase className="size-3.5" />
+                {jobRole}
+              </span>
+            )}
+            {experienceLevel && (
+              <span className="flex items-center gap-1.5">
+                <Clock className="size-3.5" />
+                {experienceLevel}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Status + answered count */}
+        <div className="mt-2 flex items-center justify-center gap-3 text-sm">
+          <span className={cn(
+            "inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 text-xs font-medium",
+            status === "Done"
+              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+              : "bg-amber-500/10 text-amber-400 border border-amber-500/30",
+          )}>
+            {status === "Done" ? "Completed" : "In Progress"}
+          </span>
+          <span className="text-muted-foreground">
+            {answeredCount} of {questions.length} answered
+          </span>
+        </div>
       </div>
 
       {/* Score overview */}
@@ -203,6 +256,23 @@ export function Result() {
           <p className="text-sm text-muted-foreground">Overall Score</p>
         </div>
       </div>
+
+      {/* Category breakdown */}
+      {Object.keys(categoryScores).length > 1 && (
+        <div className="animate-fade-in-up mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {Object.entries(categoryScores).map(([cat, scores]) => {
+            const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+            const cfg = getCategoryConfig(cat);
+            return (
+              <div key={cat} className={cn("rounded-xl border p-3 text-center", cfg.color.replace("text-", "border-").split(" ")[0])}>
+                <cfg.icon className="mx-auto mb-1 size-4" />
+                <p className="text-xs font-medium text-muted-foreground">{cfg.label}</p>
+                <p className={cn("text-lg font-bold", getScoreColor(avg))}>{avg}</p>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Question cards */}
       <div className="space-y-4">
@@ -262,14 +332,55 @@ export function Result() {
                 </div>
               )}
 
+              {/* Audio playback */}
+              {q.audioUrl && (
+                <div className="mb-3 space-y-1.5">
+                  <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                    <Play className="size-3.5" />
+                    Recording
+                  </p>
+                  <audio controls src={q.audioUrl} className="h-8 w-full" />
+                </div>
+              )}
+
               {/* Feedback */}
               {q.feedback && (
-                <div className="space-y-1.5">
+                <div className="mb-3 space-y-1.5">
                   <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                     <Sparkles className="size-3.5" />
                     Feedback
                   </p>
                   <p className="text-sm leading-relaxed text-foreground/70">{q.feedback}</p>
+                </div>
+              )}
+
+              {/* Strengths */}
+              {q.strengths && q.strengths.length > 0 && (
+                <div className="mb-2 space-y-1">
+                  <p className="text-xs font-medium text-emerald-400">Strengths</p>
+                  <ul className="space-y-0.5">
+                    {q.strengths.map((s, j) => (
+                      <li key={j} className="flex items-start gap-1.5 text-sm text-foreground/70">
+                        <span className="mt-1 size-1.5 shrink-0 rounded-full bg-emerald-500/60" />
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Weaknesses */}
+              {q.weaknesses && q.weaknesses.length > 0 && (
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-rose-400">Areas for Improvement</p>
+                  <ul className="space-y-0.5">
+                    {q.weaknesses.map((w, j) => (
+                      <li key={j} className="flex items-start gap-1.5 text-sm text-foreground/70">
+                        <span className="mt-1 size-1.5 shrink-0 rounded-full bg-rose-500/60" />
+                        {w}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
             </div>

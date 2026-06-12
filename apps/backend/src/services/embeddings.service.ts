@@ -3,6 +3,10 @@ import { env } from "../config/env";
 const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 
 export async function generateEmbedding(text: string): Promise<number[]> {
+  if (!env.geminiApiKey) {
+    throw new Error("GEMINI_API_KEY is not configured");
+  }
+
   const res = await fetch(
     `${GEMINI_BASE}/${env.geminiEmbeddingModel}:embedContent?key=${env.geminiApiKey}`,
     {
