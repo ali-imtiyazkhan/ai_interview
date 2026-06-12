@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import { cn } from "@/lib/utils";
 import { BACKEND_URL } from "@/lib/config";
-import { Code, UserRound, ArrowRight, Check, Loader, CircleAlert, FileText } from "lucide-react";
+import { Code, UserRound, ArrowRight, Check, Loader, CircleAlert, FileText, Briefcase, User, Layers } from "lucide-react";
 
 type StepId = "create" | "github-embed" | "linkedin-embed" | "done";
 
@@ -28,6 +28,9 @@ export function Form() {
   const [linkedin, setLinkedin] = useState("");
   const [linkedinText, setLinkedinText] = useState("");
   const [showLinkedinInput, setShowLinkedinInput] = useState(false);
+  const [candidateName, setCandidateName] = useState("");
+  const [jobRole, setJobRole] = useState("");
+  const [experienceLevel, setExperienceLevel] = useState("");
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [shake, setShake] = useState(false);
@@ -69,6 +72,9 @@ export function Form() {
       const { data } = await axios.post(`${BACKEND_URL}/api/v1/pre-interview`, {
         github,
         linkedin,
+        candidateName: candidateName || undefined,
+        jobRole: jobRole || undefined,
+        experienceLevel: experienceLevel || undefined,
       });
       const interviewId: string = data.id;
 
@@ -160,6 +166,66 @@ export function Form() {
               />
             </div>
           </div>
+
+          {!loading && (
+            <>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">
+                  Your Name
+                </label>
+                <div className="relative">
+                  <User
+                    className={cn(
+                      "pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 transition-colors",
+                      candidateName ? "text-foreground" : "text-muted-foreground",
+                    )}
+                  />
+                  <Input
+                    value={candidateName}
+                    onChange={(e) => setCandidateName(e.target.value)}
+                    placeholder="e.g. Jane Doe"
+                    className="pl-9"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Target Role
+                  </label>
+                  <div className="relative">
+                    <Briefcase
+                      className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                    />
+                    <Input
+                      value={jobRole}
+                      onChange={(e) => setJobRole(e.target.value)}
+                      placeholder="e.g. Senior Frontend"
+                      className="pl-9"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Experience
+                  </label>
+                  <div className="relative">
+                    <Layers
+                      className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                    />
+                    <Input
+                      value={experienceLevel}
+                      onChange={(e) => setExperienceLevel(e.target.value)}
+                      placeholder="e.g. 5 years"
+                      className="pl-9"
+                    />
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
 
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground">

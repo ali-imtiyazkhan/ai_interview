@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
@@ -21,6 +21,9 @@ import {
   Terminal,
   Clock,
   Mic,
+  Square,
+  Play,
+  Trash2,
 } from "lucide-react";
 
 interface Question {
@@ -54,6 +57,14 @@ export function Interview() {
   const [submitting, setSubmitting] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [direction, setDirection] = useState<"next" | "prev">("next");
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [micError, setMicError] = useState<string | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const answerRef = useRef<HTMLTextAreaElement>(null);
   const questionRef = useRef<HTMLDivElement>(null);
 
@@ -92,8 +103,8 @@ export function Interview() {
   }, [currentIndex, loading, starting]);
 
   async function handleSubmit() {
-    if (!answer.trim()) {
-      toast.error("Please provide an answer", {
+    if (!answer.trim() && !audioBlob) {
+      toast.error("Please provide an answer (text or audio)", {
         icon: <CircleAlert className="size-4" />,
       });
       return;
@@ -103,16 +114,29 @@ export function Interview() {
 
     setSubmitting(true);
 
+    let audioUrl: string | undefined;
+    if (audioBlob) {
+      audioUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(audioBlob);
+      });
+    }
+
     try {
       await axios.post(`${BACKEND_URL}/api/v1/interview/${id}/answer`, {
         questionId: currentQuestion.id,
         transcript: answer,
+        audioUrl,
       });
 
       if (currentIndex + 1 < totalQuestions) {
         setDirection("next");
         setCurrentIndex((i) => i + 1);
         setAnswer("");
+        setAudioBlob(null);
+        setRecordingTime(0);
         toast.success("Answer submitted!", {
           icon: <Check className="size-4" />,
         });
@@ -141,6 +165,78 @@ export function Interview() {
       handleSubmit();
     }
   }
+
+  async function startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      setMicError(null);
+
+      const recorder = new MediaRecorder(stream, { mimeType: "audio/webm;codecs=opus" });
+      const chunks: BlobPart[] = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: "audio/webm" });
+        setAudioBlob(blob);
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+        setRecordingTime(0);
+      };
+
+      mediaRecorderRef.current = recorder;
+      recorder.start();
+      setIsRecording(true);
+      setAudioBlob(null);
+
+      timerRef.current = setInterval(() => {
+        setRecordingTime((t) => t + 1);
+      }, 1000);
+    } catch {
+      setMicError("Microphone access denied. Please type your answer instead.");
+      toast.error("Microphone access denied", {
+        icon: <CircleAlert className="size-4" />,
+      });
+    }
+  }
+
+  function stopRecording() {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+  }
+
+  function clearAudio() {
+    setAudioBlob(null);
+    setRecordingTime(0);
+  }
+
+  function formatTime(seconds: number): string {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  }
+
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+      }
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
 
   // Starting screen
   if (starting) {
@@ -251,13 +347,77 @@ export function Interview() {
               <Mic className="size-3.5" />
               Your Answer
             </label>
+
+            {/* Audio recording controls */}
+            <div className="flex items-center gap-2">
+              {!isRecording && !audioBlob && (
+                <button
+                  type="button"
+                  onClick={startRecording}
+                  disabled={submitting}
+                  className="flex items-center gap-2 rounded-lg border border-border/30 bg-secondary/50 px-3 py-2 text-xs font-medium text-muted-foreground transition-all hover:bg-accent/10 hover:text-accent disabled:opacity-50"
+                >
+                  <Mic className="size-3.5" />
+                  Record Audio
+                </button>
+              )}
+
+              {isRecording && (
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="size-2 animate-pulse rounded-full bg-rose-500" />
+                    <span className="text-xs font-medium text-rose-400">
+                      Recording {formatTime(recordingTime)}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={stopRecording}
+                    className="flex items-center gap-1.5 rounded-lg bg-rose-500/20 px-3 py-2 text-xs font-medium text-rose-400 transition-all hover:bg-rose-500/30"
+                  >
+                    <Square className="size-3.5" />
+                    Stop
+                  </button>
+                </div>
+              )}
+
+              {audioBlob && !isRecording && (
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => audioRef.current?.play()}
+                    className="flex items-center gap-1.5 rounded-lg bg-accent/10 px-3 py-2 text-xs font-medium text-accent transition-all hover:bg-accent/20"
+                  >
+                    <Play className="size-3.5" />
+                    Play
+                  </button>
+                  <button
+                    type="button"
+                    onClick={clearAudio}
+                    className="flex items-center gap-1.5 rounded-lg bg-secondary/50 px-3 py-2 text-xs font-medium text-muted-foreground transition-all hover:bg-destructive/20 hover:text-destructive"
+                  >
+                    <Trash2 className="size-3.5" />
+                    Discard
+                  </button>
+                  <span className="text-xs text-muted-foreground/60">
+                    Audio recorded ({formatTime(recordingTime)})
+                  </span>
+                  <audio ref={audioRef} src={audioBlob ? URL.createObjectURL(audioBlob) : undefined} />
+                </div>
+              )}
+
+              {micError && (
+                <span className="text-xs text-rose-400">{micError}</span>
+              )}
+            </div>
+
             <Textarea
               ref={answerRef}
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type your answer here... (Cmd+Enter to submit)"
-              className="min-h-[160px] resize-none text-base leading-relaxed transition-all duration-200 focus:min-h-[200px]"
+              placeholder={audioBlob ? "Add a text note (optional)..." : "Type your answer here... (Cmd+Enter to submit)"}
+              className="min-h-[120px] resize-none text-base leading-relaxed transition-all duration-200 focus:min-h-[160px]"
               disabled={submitting}
             />
             <p className="text-xs text-muted-foreground/60">
@@ -269,7 +429,7 @@ export function Interview() {
           <div className="mt-6 flex items-center gap-3">
             <Button
               onClick={handleSubmit}
-              disabled={submitting || !answer.trim()}
+              disabled={submitting || (!answer.trim() && !audioBlob)}
               className="relative h-11 flex-1 overflow-hidden rounded-xl text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-accent/25"
             >
               {submitting ? (

@@ -59,22 +59,35 @@ interview_promo/
 
 - [Bun](https://bun.sh) >= 1.3.14
 - [Google Gemini API key](https://aistudio.google.com/apikey)
-- PostgreSQL with pgvector extension (or use the remote instance)
+- PostgreSQL with pgvector extension
 
 ## Getting Started
 
-```bash
-# Install dependencies
-bun install
+### 1. Database
 
+Start a local PostgreSQL with pgvector using Docker:
+
+```bash
+docker compose up -d
+```
+
+Or point `DATABASE_URL` in `.env` to an existing instance.
+
+### 2. Backend
+
+```bash
 # Set up environment
 cp apps/backend/.env.example apps/backend/.env
-# Edit .env with your configuration
+# Edit .env with your Gemini API key
 
-# Run database migrations
+# Install dependencies & run migrations
+bun install
 cd apps/backend && bunx prisma migrate dev
+```
 
-# Start both apps in development mode
+### 3. Start both apps
+
+```bash
 cd ../..
 bun run dev
 ```
