@@ -26,7 +26,7 @@ An AI-powered mock interview platform that generates personalized interview ques
 | **Frontend** | React 19, React Router 7, Tailwind CSS 4, shadcn/ui |
 | **Database** | PostgreSQL + pgvector |
 | **ORM** | Prisma 7 |
-| **LLM** | Google Gemini — embeddings: `text-embedding-004`, LLM: `gemini-2.0-flash` |
+| **LLM** | Google Gemini — embeddings: `gemini-embedding-001`, LLM: `gemini-2.0-flash` |
 | **Validation** | Zod 4 |
 | **Styling** | Tailwind CSS 4, OKLCH dark theme, custom animations |
 
@@ -114,4 +114,4 @@ The backend runs on `http://localhost:3001` and the frontend on `http://localhos
 | `GITHUB_TOKEN` | — | GitHub personal access token (optional, raises rate limit) |
 | `GEMINI_API_KEY` | — | Google Gemini API key |
 | `GEMINI_LLM_MODEL` | `gemini-2.0-flash` | Model for question generation and evaluation |
-| `GEMINI_EMBEDDING_MODEL` | `text-embedding-004` | Model for embeddings |
+| `GEMINI_EMBEDDING_MODEL` | `gemini-embedding-001` | Model for embeddings |
