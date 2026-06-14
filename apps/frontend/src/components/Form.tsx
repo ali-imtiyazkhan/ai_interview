@@ -1,13 +1,11 @@
 import { useState, useRef, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
 import { toast } from "sonner";
 import axios from "axios";
 import { cn } from "@/lib/utils";
 import { BACKEND_URL } from "@/lib/config";
-import { Code, UserRound, ArrowRight, Check, Loader, CircleAlert, FileText, Briefcase, User, Layers } from "lucide-react";
+import { Code, UserRound, ArrowRight, Check, Loader, CircleAlert, FileText, Briefcase, User, Layers, Sparkles } from "lucide-react";
 
 type StepId = "create" | "github-embed" | "linkedin-embed" | "done";
 
@@ -21,6 +19,13 @@ const steps: Step[] = [
   { id: "github-embed", label: "Fetching & embedding GitHub repositories..." },
   { id: "linkedin-embed", label: "Embedding LinkedIn profile..." },
 ];
+
+const inputClass =
+  "w-full rounded-xl border border-white/10 bg-white/5 px-10 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 backdrop-blur-sm transition-all duration-300 outline-none focus:border-white/20 focus:bg-white/[0.07] focus:ring-1 focus:ring-white/10";
+
+const labelClass = "block text-xs font-medium text-muted-foreground/80 mb-1.5 tracking-wide uppercase";
+
+const iconWrapClass = "pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2";
 
 export function Form() {
   const navigate = useNavigate();
@@ -67,7 +72,6 @@ export function Form() {
     setCurrentStep(0);
 
     try {
-      //  Create interview session
       setCurrentStep(0);
       const { data } = await axios.post(`${BACKEND_URL}/api/v1/pre-interview`, {
         github,
@@ -78,14 +82,12 @@ export function Form() {
       });
       const interviewId: string = data.id;
 
-      //  Embed GitHub data
       setCurrentStep(1);
       await axios.post(`${BACKEND_URL}/api/v1/pre-interview/embed-github`, {
         interviewId,
         githubUrl: github,
       });
 
-      //  Embed LinkedIn data
       setCurrentStep(2);
       try {
         await axios.post(`${BACKEND_URL}/api/v1/pre-interview/embed-linkedin`, {
@@ -119,157 +121,168 @@ export function Form() {
     <div className="flex flex-1 items-center justify-center">
       <div
         className={cn(
-          "w-full max-w-md rounded-2xl border border-border/50 bg-card/30 p-8 backdrop-blur-xl transition-all duration-300",
-          "shadow-[0_0_40px_-12px_oklch(0.6_0.25_280/0.15)]",
+          "group relative w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-background/30 p-8 backdrop-blur-xl transition-all duration-500",
+          "shadow-[0_8px_32px_rgba(0,0,0,0.4)]",
           loading && "pointer-events-none opacity-80",
         )}
       >
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-3 flex size-14 items-center justify-center rounded-2xl bg-accent/10">
+        {/* subtle glow */}
+        <div className="pointer-events-none absolute -inset-40 -top-60 left-1/2 -translate-x-1/2 rounded-full bg-white/[0.02] blur-3xl" />
+
+        <div className="relative mb-8 text-center">
+          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
             {loading ? (
-              <Loader className="size-6 animate-spin text-accent" />
+              <Loader className="size-5 animate-spin text-foreground" />
             ) : (
-              <div className="relative">
-                <div className="absolute -inset-2 animate-pulse-ring rounded-full" />
-                <span className="text-2xl">⚡</span>
-              </div>
+              <Sparkles className="size-5 text-foreground" />
             )}
           </div>
-          <h2 className="text-xl font-semibold text-foreground">
+          <h2 className="text-lg font-semibold text-foreground/90">
             {loading ? "Setting up your interview" : "Start Your Interview"}
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-muted-foreground/70">
             {loading
               ? "Please wait while we gather your data"
               : "Connect your profiles to get started"}
           </p>
         </div>
 
-        <form ref={formRef} onSubmit={onSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <label htmlFor="github" className="text-xs font-medium text-muted-foreground">
+        <form ref={formRef} onSubmit={onSubmit} className="relative space-y-4">
+          <div>
+            <label htmlFor="github" className={labelClass}>
               GitHub Profile
             </label>
             <div className="relative">
               <Code
                 className={cn(
-                  "pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 transition-colors",
-                  github ? "text-foreground" : "text-muted-foreground",
+                  iconWrapClass,
+                  "size-4 transition-colors",
+                  github ? "text-foreground/70" : "text-muted-foreground/40",
                 )}
               />
-              <Input
+              <input
                 id="github"
                 value={github}
                 onChange={(e) => setGithub(e.target.value)}
                 placeholder="https://github.com/username"
-                className={cn("pl-9", shake && !github.trim() && "animate-shake border-destructive/50")}
+                className={cn(inputClass, shake && !github.trim() && "border-red-500/40")}
                 disabled={loading}
               />
             </div>
           </div>
 
           {!loading && (
-            <>
-              <div className="space-y-1.5">
-                <label htmlFor="candidateName" className="text-xs font-medium text-muted-foreground">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="candidateName" className={labelClass}>
                   Your Name
                 </label>
                 <div className="relative">
                   <User
                     className={cn(
-                      "pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 transition-colors",
-                      candidateName ? "text-foreground" : "text-muted-foreground",
+                      iconWrapClass,
+                      "size-4 text-muted-foreground/40",
                     )}
                   />
-                  <Input
+                  <input
                     id="candidateName"
                     value={candidateName}
                     onChange={(e) => setCandidateName(e.target.value)}
-                    placeholder="e.g. Jane Doe"
-                    className="pl-9"
+                    placeholder="Jane Doe"
+                    className={cn(inputClass, "pl-10")}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <label htmlFor="jobRole" className="text-xs font-medium text-muted-foreground">
-                    Target Role
-                  </label>
-                  <div className="relative">
-                    <Briefcase
-                      className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-                    />
-                    <Input
-                      id="jobRole"
-                      value={jobRole}
-                      onChange={(e) => setJobRole(e.target.value)}
-                      placeholder="e.g. Senior Frontend"
-                      className="pl-9"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label htmlFor="experienceLevel" className="text-xs font-medium text-muted-foreground">
-                    Experience
-                  </label>
-                  <div className="relative">
-                    <Layers
-                      className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-                    />
-                    <Input
-                      id="experienceLevel"
-                      value={experienceLevel}
-                      onChange={(e) => setExperienceLevel(e.target.value)}
-                      placeholder="e.g. 5 years"
-                      className="pl-9"
-                    />
-                  </div>
+              <div>
+                <label htmlFor="jobRole" className={labelClass}>
+                  Target Role
+                </label>
+                <div className="relative">
+                  <Briefcase
+                    className={cn(
+                      iconWrapClass,
+                      "size-4 text-muted-foreground/40",
+                    )}
+                  />
+                  <input
+                    id="jobRole"
+                    value={jobRole}
+                    onChange={(e) => setJobRole(e.target.value)}
+                    placeholder="e.g. Senior Frontend"
+                    className={cn(inputClass, "pl-10")}
+                  />
                 </div>
               </div>
-            </>
+            </div>
           )}
 
-          <div className="space-y-1.5">
-            <label htmlFor="linkedin" className="text-xs font-medium text-muted-foreground">
+          {!loading && (
+            <div>
+              <label htmlFor="experienceLevel" className={labelClass}>
+                Experience
+              </label>
+              <div className="relative">
+                <Layers
+                  className={cn(
+                    iconWrapClass,
+                    "size-4 text-muted-foreground/40",
+                  )}
+                />
+                <input
+                  id="experienceLevel"
+                  value={experienceLevel}
+                  onChange={(e) => setExperienceLevel(e.target.value)}
+                  placeholder="e.g. 5 years"
+                  className={cn(inputClass, "pl-10")}
+                />
+              </div>
+            </div>
+          )}
+
+          <div>
+            <label htmlFor="linkedin" className={labelClass}>
               LinkedIn Profile
             </label>
             <div className="relative">
               <UserRound
                 className={cn(
-                  "pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 transition-colors",
-                  linkedin ? "text-foreground" : "text-muted-foreground",
+                  iconWrapClass,
+                  "size-4 transition-colors",
+                  linkedin ? "text-foreground/70" : "text-muted-foreground/40",
                 )}
               />
-              <Input
+              <input
                 id="linkedin"
                 value={linkedin}
                 onChange={(e) => setLinkedin(e.target.value)}
                 placeholder="https://linkedin.com/in/username"
-                className={cn("pl-9", shake && !linkedin.trim() && "animate-shake border-destructive/50")}
+                className={cn(inputClass, shake && !linkedin.trim() && "border-red-500/40")}
                 disabled={loading}
               />
             </div>
             <button
               type="button"
               onClick={() => setShowLinkedinInput(!showLinkedinInput)}
-              className="text-xs text-muted-foreground hover:text-accent transition-colors mt-1"
+              className="mt-1.5 text-xs text-muted-foreground/50 transition-colors hover:text-foreground/70"
             >
-              {showLinkedinInput ? "Hide manual input" : "LinkedIn scraping unavailable — paste your profile instead?"}
+              {showLinkedinInput ? "− Hide manual input" : "⊕ Paste your profile instead?"}
             </button>
             {showLinkedinInput && (
-              <div className="mt-2 animate-expand-in space-y-1.5">
-                <label htmlFor="linkedinText" className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+              <div className="mt-3 animate-expand-in space-y-1.5">
+                <label htmlFor="linkedinText" className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
                   <FileText className="size-3.5" />
-                  Your LinkedIn Profile (paste your headline, skills, experience, education)
+                  Your LinkedIn Profile (headline, skills, experience, education)
                 </label>
-                <Textarea
+                <textarea
                   id="linkedinText"
                   value={linkedinText}
                   onChange={(e) => setLinkedinText(e.target.value)}
                   placeholder="Senior Software Engineer at Acme Corp&#10;Skills: TypeScript, React, Node.js, Python&#10;&#10;Experience:&#10;  - Lead Engineer at Acme Corp (2020-Present)&#10;    Architected microservices handling 1M+ requests/day&#10;  - Full Stack Developer at Beta Inc (2018-2020)&#10;    Built real-time collaboration features&#10;&#10;Education:&#10;  - B.S. Computer Science, University of Example (2014-2018)"
-                  className="min-h-[140px] resize-none text-sm"
+                  className={cn(
+                    "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/30 backdrop-blur-sm transition-all outline-none resize-none focus:border-white/20 focus:bg-white/[0.07] focus:ring-1 focus:ring-white/10",
+                    "min-h-[120px]",
+                  )}
                   disabled={loading}
                 />
               </div>
@@ -278,9 +291,10 @@ export function Form() {
 
           <Button
             type="submit"
-            variant="accent"
+            variant="glass"
+            size="pill"
             disabled={loading}
-            className="relative mt-2 h-11 w-full rounded-xl bg-gradient-to-r from-accent to-accent/80 bg-[length:200%_100%] text-sm font-semibold animate-gradient-shift"
+            className="relative mt-4 h-11 w-full rounded-xl px-6 text-sm font-semibold text-foreground transition-all duration-300 hover:scale-[1.01]"
           >
             {loading ? (
               <span className="flex items-center gap-2">
@@ -290,14 +304,14 @@ export function Form() {
             ) : (
               <span className="flex items-center gap-2">
                 Start Interview
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                <ArrowRight className="size-4" />
               </span>
             )}
           </Button>
         </form>
 
         {loading && (
-          <div className="mt-8 space-y-3 border-t border-border/30 pt-6">
+          <div className="relative mt-8 space-y-3 border-t border-white/10 pt-6">
             {steps.map((step, i) => {
               const status = i < currentStep ? "done" : i === currentStep ? "active" : "pending";
               return (
@@ -305,12 +319,9 @@ export function Form() {
                   <div
                     className={cn(
                       "flex size-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-medium transition-all duration-500",
-                      status === "done" &&
-                      "border-emerald-500/50 bg-emerald-500/20 text-emerald-400",
-                      status === "active" &&
-                      "border-accent/50 bg-accent/10 text-accent",
-                      status === "pending" &&
-                      "border-border/30 text-muted-foreground/40",
+                      status === "done" && "border-emerald-500/40 bg-emerald-500/15 text-emerald-400",
+                      status === "active" && "border-white/20 bg-white/10 text-foreground",
+                      status === "pending" && "border-white/5 text-muted-foreground/30",
                     )}
                   >
                     {status === "done" ? (
@@ -325,8 +336,8 @@ export function Form() {
                     className={cn(
                       "text-sm transition-all duration-500",
                       status === "done" && "text-emerald-400",
-                      status === "active" && "text-foreground",
-                      status === "pending" && "text-muted-foreground/40",
+                      status === "active" && "text-foreground/80",
+                      status === "pending" && "text-muted-foreground/30",
                     )}
                   >
                     {step.label}

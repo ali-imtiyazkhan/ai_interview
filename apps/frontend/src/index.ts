@@ -3,37 +3,34 @@ import index from "./index.html";
 
 const server = serve({
   routes: {
-    // Serve index.html for all unmatched routes.
-    "/*": index,
+    // Serve static assets from public/ before the SPA catch-all
+    "/assets/*": async req => {
+      const url = new URL(req.url);
+      const file = Bun.file(`public${url.pathname}`);
+      if (await file.exists()) return new Response(file);
+      return new Response("Not Found", { status: 404 });
+    },
 
+    // API routes
     "/api/hello": {
       async GET(req) {
-        return Response.json({
-          message: "Hello, world!",
-          method: "GET",
-        });
+        return Response.json({ message: "Hello, world!", method: "GET" });
       },
       async PUT(req) {
-        return Response.json({
-          message: "Hello, world!",
-          method: "PUT",
-        });
+        return Response.json({ message: "Hello, world!", method: "PUT" });
       },
     },
 
     "/api/hello/:name": async req => {
-      const name = req.params.name;
-      return Response.json({
-        message: `Hello, ${name}!`,
-      });
+      return Response.json({ message: `Hello, ${req.params.name}!` });
     },
+
+    // SPA fallback — handles HTML imports with automatic TSX compilation
+    "/*": index,
   },
 
   development: process.env.NODE_ENV !== "production" && {
-    // Enable browser hot reloading in development
     hmr: true,
-
-    // Echo console logs from the browser to the server
     console: true,
   },
 });

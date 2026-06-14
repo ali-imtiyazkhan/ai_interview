@@ -11,9 +11,8 @@ describe("App", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText(/interview ai/i)).toBeTruthy();
-    expect(screen.getByPlaceholderText("https://github.com/username")).toBeTruthy();
-    expect(screen.getByPlaceholderText("https://linkedin.com/in/username")).toBeTruthy();
+    expect(screen.getAllByText(/velorah/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/dreams/i)).toBeTruthy();
   });
 
   test("renders the result page on /result", () => {
@@ -33,6 +32,6 @@ describe("App", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByPlaceholderText("https://github.com/username")).toBeTruthy();
+    expect(screen.getAllByText(/velorah/i).length).toBeGreaterThan(0);
   });
 });

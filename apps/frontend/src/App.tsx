@@ -1,7 +1,7 @@
 import "./index.css";
 
 import { useLocation } from "react-router-dom";
-import { Landing } from "./components/Landing";
+import { VelorahLanding } from "./components/VelorahLanding";
 import { Result } from "./components/Result";
 import { Interview } from "./components/Interview";
 import { Layout } from "./components/Layout";
@@ -13,7 +13,7 @@ export function App() {
   const isLanding = location.pathname === "/";
 
   if (isLanding) {
-    return <Landing />;
+    return <VelorahLanding />;
   }
 
   return (
