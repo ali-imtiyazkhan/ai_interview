@@ -9,6 +9,8 @@ export async function embedGithubData(req: Request, res: Response) {
     const { interviewId, githubUrl } = req.body as { interviewId: string; githubUrl: string };
 
     const interview = await prisma.interview.findUnique({ where: { id: interviewId } });
+    console.log("interview", interview);
+
     if (!interview) {
       res.status(404).json({ message: "Interview not found" });
       return;
@@ -21,6 +23,8 @@ export async function embedGithubData(req: Request, res: Response) {
     for (const repo of repos) {
       const text = `Repo: ${repo.name}\nDescription: ${repo.description ?? ""}\nLanguage: ${repo.language ?? ""}\nTopics: ${repo.topics.join(", ")}\nStars: ${repo.starCount}`;
       const embedding = await generateEmbedding(text);
+
+      console.log("embedding of repo", embedding);
 
       await prisma.$executeRaw`
         INSERT INTO "Embedding" (id, "interviewId", "sourceType", "chunkText", embedding, metadata)
