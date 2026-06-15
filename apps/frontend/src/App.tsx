@@ -1,9 +1,9 @@
 import "./index.css";
 
 import { useLocation } from "react-router-dom";
-import { VelorahLanding } from "./components/VelorahLanding";
-import { Result } from "./components/Result";
-import { Interview } from "./components/Interview";
+import { LandingPage } from "./pages/LandingPage";
+import { InterviewPage } from "./pages/InterviewPage";
+import { ResultPage } from "./pages/ResultPage";
 import { Layout } from "./components/Layout";
 import { Toaster } from "sonner";
 import { Navigate, Route, Routes } from "react-router-dom";
@@ -13,14 +13,14 @@ export function App() {
   const isLanding = location.pathname === "/";
 
   if (isLanding) {
-    return <VelorahLanding />;
+    return <LandingPage />;
   }
 
   return (
     <Layout>
       <Routes>
-        <Route path="/interview/:id" element={<Interview />} />
-        <Route path="/result" element={<Result />} />
+        <Route path="/interview/:id" element={<InterviewPage />} />
+        <Route path="/result" element={<ResultPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 

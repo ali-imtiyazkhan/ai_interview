@@ -18,7 +18,7 @@ function matchRoute(pathname: string): RouteInfo {
       return info;
     }
   }
-  return { name: "Interview AI", icon: "🎯" };
+  return { name: "SkillScribe", icon: "🎯" };
 }
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -34,7 +34,7 @@ export function Layout({ children }: { children: ReactNode }) {
               {routeIcon}
             </span>
             <div>
-              <h1 className="text-sm font-semibold text-foreground">Interview AI</h1>
+              <h1 className="text-sm font-semibold text-foreground">SkillScribe</h1>
               <p className="text-[11px] text-muted-foreground">{routeName}</p>
             </div>
           </div>
@@ -54,7 +54,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
       <footer className="border-t border-border/20 py-4">
         <p className="text-center text-xs text-muted-foreground">
-          Interview AI &mdash; Powered by local LLM
+          SkillScribe &mdash; Powered by local LLM
         </p>
       </footer>
     </div>

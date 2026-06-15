@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button } from "./ui/button";
-import { Textarea } from "./ui/textarea";
+import { Button } from "../components/ui/button";
+import { Textarea } from "../components/ui/textarea";
 import { toast } from "sonner";
 import axios from "axios";
 import { cn } from "@/lib/utils";
@@ -68,7 +68,7 @@ function WaveformBars({ isRecording }: { isRecording: boolean }) {
   );
 }
 
-export function Interview() {
+export function InterviewPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -308,7 +308,6 @@ export function Interview() {
     };
   }, []);
 
-  // Starting screen
   if (starting) {
     return (
       <div className="flex flex-1 items-center justify-center">
@@ -335,7 +334,6 @@ export function Interview() {
     );
   }
 
-  // Completed screen
   if (completed) {
     return (
       <div className="flex flex-1 items-center justify-center">
@@ -358,7 +356,6 @@ export function Interview() {
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col py-4">
-      {/* Progress bar */}
       <div className="mb-8">
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
@@ -380,7 +377,6 @@ export function Interview() {
         </div>
       </div>
 
-      {/* Question card */}
       <div
         ref={questionRef}
         key={currentQuestion?.id ?? currentIndex}
@@ -390,7 +386,6 @@ export function Interview() {
         )}
       >
         <div className="group relative flex flex-1 flex-col rounded-2xl border border-border/50 bg-card/40 p-8 backdrop-blur-xl shadow-[0_0_60px_-20px_oklch(0.6_0.25_280/0.08)] transition-all duration-300 hover:shadow-[0_0_60px_-12px_oklch(0.6_0.25_280/0.15)]">
-          {/* Category badge */}
           {category && (
             <div className="mb-5">
               <span
@@ -405,26 +400,22 @@ export function Interview() {
             </div>
           )}
 
-          {/* Question text */}
           <h3 className="text-xl leading-relaxed text-foreground sm:text-2xl sm:leading-relaxed">
             {currentQuestion?.question}
           </h3>
 
-          {/* Decorative divider */}
           <div className="my-6 flex items-center gap-3">
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/50 to-transparent" />
             <BrainCircuit className="size-4 text-muted-foreground/40" />
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/50 to-transparent" />
           </div>
 
-          {/* Answer area */}
           <div className="flex-1 space-y-3">
             <label htmlFor="answer" className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <AudioLines className="size-3.5" />
               Your Answer
             </label>
 
-            {/* Audio recording controls */}
             <div className="flex items-center gap-2 flex-wrap">
               {!isRecording && !audioBlob && (
                 <button
@@ -501,7 +492,6 @@ export function Interview() {
             </p>
           </div>
 
-          {/* Actions */}
           <div className="mt-6 flex items-center gap-3">
             <Button
               variant="accent"

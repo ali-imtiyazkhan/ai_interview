@@ -1,5 +1,5 @@
-import { Form } from "./Form";
-import { Button } from "./ui/button";
+import { Form } from "../components/Form";
+import { Button } from "../components/ui/button";
 import { Toaster } from "sonner";
 import {
   BrainCircuit,
@@ -64,14 +64,13 @@ const steps = [
 
 const displayFont = { fontFamily: "'Instrument Serif', serif" };
 
-export function VelorahLanding() {
+export function LandingPage() {
   function scrollTo(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   }
 
   return (
     <div className="relative min-h-screen bg-background text-foreground">
-      {/* Fixed Video Background */}
       <video
         className="fixed inset-0 z-0 h-full w-full object-cover"
         src={VIDEO_SRC}
@@ -83,10 +82,8 @@ export function VelorahLanding() {
         tabIndex={-1}
       />
 
-      {/* Overlay so content is readable */}
       <div className="fixed inset-0 z-[1] bg-background/40" />
 
-      {/* Header */}
       <header className="fixed top-0 right-0 left-0 z-50 border-b border-white/10 bg-background/60 backdrop-blur-2xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           <a href="/" className="flex items-center gap-2.5 text-2xl tracking-tight text-foreground" style={displayFont} aria-label="SkillScribe home">
@@ -121,7 +118,6 @@ export function VelorahLanding() {
       </header>
 
       <main className="relative z-10">
-        {/* Hero */}
         <section className="relative flex min-h-screen items-center overflow-hidden pt-16">
           <div className="mx-auto flex w-full max-w-6xl flex-col items-center px-6 text-center">
             <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-foreground">
@@ -178,7 +174,6 @@ export function VelorahLanding() {
           </div>
         </section>
 
-        {/* Features */}
         <section id="features" className="py-20 sm:py-28">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="mx-auto mb-16 max-w-2xl text-center">
@@ -209,7 +204,6 @@ export function VelorahLanding() {
           </div>
         </section>
 
-        {/* How It Works */}
         <section id="how-it-works" className="py-20 sm:py-28">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="mx-auto mb-16 max-w-2xl text-center">
@@ -241,7 +235,6 @@ export function VelorahLanding() {
           </div>
         </section>
 
-        {/* Form Section */}
         <section id="form" className="py-20 sm:py-28">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="mx-auto mb-12 max-w-2xl text-center">
@@ -260,7 +253,6 @@ export function VelorahLanding() {
         </section>
       </main>
 
-      {/* Footer */}
       <footer className="relative z-10 border-t border-white/10 bg-background/40 backdrop-blur-xl">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
           <div className="grid gap-8 sm:grid-cols-3">
