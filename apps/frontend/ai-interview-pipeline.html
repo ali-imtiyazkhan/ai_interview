@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI mock interview pipeline</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+
+  body {
+    background: #0a1628;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .canvas { width: 100%; max-width: 900px; }
+
+  svg { display:block; width:100%; height:auto; overflow:visible; }
+
+  .node-box {
+    fill: rgba(255,255,255,0.06);
+    stroke: rgba(255,255,255,0.12);
+    stroke-width: 1;
+    rx: 12;
+    transition: fill 0.3s, stroke 0.3s;
+  }
+
+  .node-title {
+    font-size: 16px;
+    font-weight: 700;
+    fill: #f8fafc;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+
+  .node-sub {
+    font-size: 12px;
+    fill: #94a3b8;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+
+  .stage {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  .stage:nth-of-type(1) { animation-delay: 0.1s; }
+  .stage:nth-of-type(2) { animation-delay: 0.3s; }
+  .stage:nth-of-type(3) { animation-delay: 0.9s; }
+  .stage:nth-of-type(4) { animation-delay: 1.5s; }
+  .stage:nth-of-type(5) { animation-delay: 2.1s; }
+  .stage:nth-of-type(6) { animation-delay: 2.7s; }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .conn-line {
+    fill: none;
+    stroke: rgba(255,255,255,0.15);
+    stroke-width: 1.5;
+  }
+
+  .flow-dot {
+    fill: #5b8cff;
+    offset-rotate: 0deg;
+    animation: flow 2.4s linear infinite;
+  }
+
+  @keyframes flow {
+    0%   { offset-distance: 0%; opacity: 0; }
+    8%   { opacity: 1; }
+    92%  { opacity: 1; }
+    100% { offset-distance: 100%; opacity: 0; }
+  }
+
+  .glow-box {
+    animation: glow 2.4s ease-in-out infinite;
+  }
+
+  @keyframes glow {
+    0%, 100% { stroke: rgba(255,255,255,0.12); }
+    50% { stroke: rgba(91,140,255,0.5); }
+  }
+
+  .stage:nth-of-type(1) .glow-box,
+  .stage:nth-of-type(2) .glow-box { animation-delay: 0s; }
+  .stage:nth-of-type(3) .glow-box { animation-delay: 0.3s; }
+  .stage:nth-of-type(4) .glow-box { animation-delay: 0.9s; }
+  .stage:nth-of-type(5) .glow-box { animation-delay: 1.5s; }
+  .stage:nth-of-type(6) .glow-box { animation-delay: 2.1s; }
+
+  .icon {
+    stroke: #f8fafc;
+    fill: none;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+</style>
+</head>
+<body>
+
+<div class="canvas">
+  <svg viewBox="0 0 680 580" xmlns="http://www.w3.org/2000/svg">
+
+    <!-- connector paths -->
+    <path id="p1" class="conn-line" d="M 200 88 H 260 V 130 H 300" />
+    <path id="p2" class="conn-line" d="M 200 168 H 260 V 130 H 300" />
+    <path id="p3" class="conn-line" d="M 390 158 V 200" />
+    <path id="p4" class="conn-line" d="M 390 258 V 300" />
+    <path id="p5" class="conn-line" d="M 390 358 V 382" />
+
+    <!-- flow dots -->
+    <circle class="flow-dot" r="4" style="offset-path: path('M 200 88 H 260 V 130 H 300'); animation-delay: 0s;" />
+    <circle class="flow-dot" r="4" style="offset-path: path('M 200 168 H 260 V 130 H 300'); animation-delay: 0.6s;" />
+    <circle class="flow-dot" r="4" style="offset-path: path('M 390 158 V 200'); animation-delay: 1.2s;" />
+    <circle class="flow-dot" r="4" style="offset-path: path('M 390 258 V 300'); animation-delay: 1.8s;" />
+    <circle class="flow-dot" r="4" style="offset-path: path('M 390 358 V 382'); animation-delay: 2.4s;" />
+
+    <!-- GitHub -->
+    <g class="stage">
+      <rect class="node-box glow-box" x="40" y="60" width="160" height="56" />
+      <g transform="translate(58,76)">
+        <path class="icon" d="M12 0C5.4 0 0 5.4 0 12c0 5.3 3.4 9.8 8.2 11.4.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2.9-.3 1.9-.4 2.9-.4s2 .1 2.9.4c2.3-1.6 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6C20.6 21.8 24 17.3 24 12 24 5.4 18.6 0 12 0z"/>
+      </g>
+      <text class="node-title" x="120" y="80">GitHub</text>
+      <text class="node-sub" x="120" y="98">Repos, READMEs, languages</text>
+    </g>
+
+    <!-- LinkedIn -->
+    <g class="stage">
+      <rect class="node-box glow-box" x="40" y="140" width="160" height="56" />
+      <g transform="translate(58,156)">
+        <rect class="icon" x="0" y="0" width="20" height="20" rx="3"/>
+        <path class="icon" d="M5 8.5V16M5 5.2V5.3M9.5 16V11c0-1.5 1-2.5 2.5-2.5S14.5 9.5 14.5 11v5M9.5 8.5V16"/>
+      </g>
+      <text class="node-title" x="120" y="160">LinkedIn</text>
+      <text class="node-sub" x="120" y="178">Experience, education, skills</text>
+    </g>
+
+    <!-- Vector embedding -->
+    <g class="stage">
+      <rect class="node-box glow-box" x="300" y="100" width="180" height="56" />
+      <g transform="translate(330,118)">
+        <circle class="icon" cx="5" cy="5" r="3"/>
+        <circle class="icon" cx="15" cy="5" r="3"/>
+        <circle class="icon" cx="10" cy="15" r="3"/>
+        <path class="icon" d="M7.5 6.5L12.5 12.5M12.5 6.5L10 12.5"/>
+      </g>
+      <text class="node-title" x="390" y="120">Vector embedding</text>
+      <text class="node-sub" x="390" y="138">Chunked into pgvector</text>
+    </g>
+
+    <!-- AI question generation -->
+    <g class="stage">
+      <rect class="node-box glow-box" x="300" y="200" width="180" height="56" />
+      <g transform="translate(332,218)">
+        <rect class="icon" x="0" y="2" width="16" height="12" rx="2"/>
+        <path class="icon" d="M4 18h8M5 2V0M11 2V0M0 8h2M14 8h2"/>
+        <circle class="icon" cx="5" cy="8" r="1" fill="#f8fafc"/>
+        <circle class="icon" cx="11" cy="8" r="1" fill="#f8fafc"/>
+      </g>
+      <text class="node-title" x="390" y="220">AI question generation</text>
+      <text class="node-sub" x="390" y="238">Gemini, context-aware</text>
+    </g>
+
+    <!-- Interview session -->
+    <g class="stage">
+      <rect class="node-box glow-box" x="300" y="300" width="180" height="56" />
+      <g transform="translate(338,316)">
+        <rect class="icon" x="3" y="0" width="8" height="14" rx="4"/>
+        <path class="icon" d="M0 8a7 7 0 0014 0M7 15v3M4 18h6"/>
+      </g>
+      <text class="node-title" x="390" y="320">Interview session</text>
+      <text class="node-sub" x="390" y="338">Text or audio answers</text>
+    </g>
+
+    <!-- AI evaluation and results -->
+    <g class="stage">
+      <rect class="node-box glow-box" x="240" y="382" width="300" height="56" />
+      <g transform="translate(266,400)">
+        <rect class="icon" x="0" y="0" width="16" height="20" rx="2"/>
+        <path class="icon" d="M4 6h8M4 10h8M4 14h5"/>
+        <path class="icon" d="M3 17l2 2 4-5" stroke="#5b8cff"/>
+      </g>
+      <text class="node-title" x="390" y="410">AI evaluation and results</text>
+      <text class="node-sub" x="390" y="428">Scores, strengths, feedback</text>
+    </g>
+
+  </svg>
+</div>
+
+</body>
+</html>

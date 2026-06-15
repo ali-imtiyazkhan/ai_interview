@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Interview Pipeline — SkillScribe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a0b;
+      color: #f1f1f1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1.5rem;
+    }
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+    h1 sup { font-size: 0.625rem; vertical-align: super; color: #a1a1aa; }
+    .subtitle {
+      color: #a1a1aa;
+      font-size: 1rem;
+      margin-bottom: 3rem;
+      text-align: center;
+      max-width: 36rem;
+    }
+    .pipeline {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      width: 100%;
+      max-width: 56rem;
+    }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 1rem;
+      padding: 1.25rem 1.5rem;
+      backdrop-filter: blur(12px);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .step:hover {
+      border-color: rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.06);
+    }
+    .step-icon {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 0.75rem;
+      background: rgba(255,255,255,0.06);
+    }
+    .step-icon svg { width: 1.5rem; height: 1.5rem; }
+    .step-body { flex: 1; min-width: 0; }
+    .step-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+    }
+    .step-desc {
+      font-size: 0.875rem;
+      color: #a1a1aa;
+      line-height: 1.5;
+    }
+    .step-arrow {
+      flex-shrink: 0;
+      color: #52525b;
+    }
+    .step-arrow svg { width: 1.25rem; height: 1.25rem; }
+    .badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+    .badge-green { background: rgba(52,211,153,0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
+    .badge-blue  { background: rgba(96,165,250,0.12); color: #60a5fa; border: 1px solid rgba(96,165,250,0.2); }
+    .badge-amber { background: rgba(251,191,36,0.12);  color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+    .badge-purple{ background: rgba(192,132,252,0.12); color: #c084fc; border: 1px solid rgba(192,132,252,0.2); }
+    @media (max-width: 640px) {
+      .step { flex-wrap: wrap; }
+      .step-arrow { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <h1>SkillScribe<sup>&reg;</sup></h1>
+  <p class="subtitle">AI Interview Pipeline — from profile submission to detailed scorecard</p>
+
+  <div class="pipeline">
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-icon"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <div class="step-body">
+        <div class="step-title">
+          Profile Submission
+          <span class="badge badge-green">Frontend</span>
+        </div>
+        <div class="step-desc">User submits GitHub &amp; LinkedIn URLs via the landing page form. Optional metadata (name, role, experience) collected.</div>
+      </div>
+      <div class="step-arrow"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-icon"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></div>
+      <div class="step-body">
+        <div class="step-title">
+          Data Ingestion
+          <span class="badge badge-blue">Backend</span>
+        </div>
+        <div class="step-desc">Backend fetches GitHub repos, READMEs, languages. LinkedIn data scraped or provided as manual text. All stored in PostgreSQL.</div>
+      </div>
+      <div class="step-arrow"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-icon"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></div>
+      <div class="step-body">
+        <div class="step-title">
+          Embedding Pipeline
+          <span class="badge badge-purple">AI</span>
+        </div>
+        <div class="step-desc">Gemini Embedding API chunks &amp; vector-embeds GitHub repos (summary + deep READMEs), languages, and LinkedIn profile. Stored in pgvector.</div>
+      </div>
+      <div class="step-arrow"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-icon"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+      <div class="step-body">
+        <div class="step-title">
+          Question Generation
+          <span class="badge badge-purple">AI</span>
+        </div>
+        <div class="step-desc">Gemini LLM generates tailored questions (technical, behavioral, project deep-dive, system design, coding) based on embedded profile context.</div>
+      </div>
+      <div class="step-arrow"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step">
+      <div class="step-icon"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div>
+      <div class="step-body">
+        <div class="step-title">
+          Interview Session
+          <span class="badge badge-green">Frontend</span>
+        </div>
+        <div class="step-desc">User answers one question at a time via text or audio recording. Progress tracked, skip available. Cmd+Enter to submit.</div>
+      </div>
+      <div class="step-arrow"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="step">
+      <div class="step-icon"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg></div>
+      <div class="step-body">
+        <div class="step-title">
+          Answer Evaluation
+          <span class="badge badge-purple">AI</span>
+        </div>
+        <div class="step-desc">Each answer sent to Gemini for scoring (0-100), structured feedback, strengths &amp; weaknesses extraction. Score recorded in DB.</div>
+      </div>
+      <div class="step-arrow"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+    </div>
+
+    <!-- Step 7 -->
+    <div class="step">
+      <div class="step-icon"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 7 4.5 7.5"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 17 7 19.5 7.5"/><path d="M4 22h16"/><path d="M10 22c0-4.42 1.79-8 4-8s4 3.58 4 8"/><circle cx="12" cy="5" r="3"/></svg></div>
+      <div class="step-body">
+        <div class="step-title">
+          Results &amp; Scorecard
+          <span class="badge badge-green">Frontend</span>
+        </div>
+        <div class="step-desc">User views overall score, per-category breakdown, per-question cards with feedback, strengths, weaknesses, and audio playback.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <p style="margin-top: 2.5rem; font-size: 0.75rem; color: #52525b;">
+    &copy; 2026 SkillScribe &mdash; AI-Powered Mock Interviews
+  </p>
+</body>
+</html>

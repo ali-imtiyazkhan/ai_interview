@@ -11,7 +11,14 @@ import {
   UserRound,
   ScrollText,
   Play,
-  FileCheck,
+  Target,
+  Zap,
+  Award,
+  Database,
+  Users,
+  HelpCircle,
+  ClipboardCheck,
+  LayoutDashboard,
 } from "lucide-react";
 
 const VIDEO_SRC = "/assets/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4";
@@ -36,29 +43,6 @@ const features = [
     icon: Sparkles,
     title: "Realistic Interview Flow",
     description: "Simulate real interview conditions with timed questions, skip options, and a natural question-by-question progression.",
-  },
-];
-
-const steps = [
-  {
-    icon: Code,
-    title: "Connect Your Profiles",
-    description: "Link your GitHub and LinkedIn so the AI can analyze your projects, skills, and experience.",
-  },
-  {
-    icon: BrainCircuit,
-    title: "AI Generates Questions",
-    description: "Our local LLM creates personalized questions targeting your tech stack, role, and experience level.",
-  },
-  {
-    icon: Mic,
-    title: "Answer with Text or Audio",
-    description: "Type your response or record with your microphone. Skip questions you don't want to answer.",
-  },
-  {
-    icon: FileCheck,
-    title: "Get Detailed Feedback",
-    description: "Receive scores, AI feedback, strengths, and areas for improvement for every single question.",
   },
 ];
 
@@ -93,7 +77,7 @@ export function LandingPage() {
           <nav className="hidden items-center gap-1 md:flex">
             {[
               { label: "Features", href: "#features" },
-              { label: "How It Works", href: "#how-it-works" },
+              { label: "Pipeline", href: "#pipeline" },
               { label: "Get Started", href: "#form" },
             ].map((item) => (
               <button
@@ -153,6 +137,7 @@ export function LandingPage() {
                 onClick={() => scrollTo("features")}
                 className="h-12 rounded-xl px-8 text-sm font-semibold"
               >
+                <Zap className="size-4" />
                 Explore Features
               </Button>
             </div>
@@ -167,8 +152,12 @@ export function LandingPage() {
                 LinkedIn
               </span>
               <span className="flex items-center gap-1.5">
-                <ScrollText className="size-4" />
+                <BrainCircuit className="size-4" />
                 Local LLM
+              </span>
+              <span className="flex items-center gap-1.5 text-accent/80">
+                <Target className="size-4" />
+                AI-Powered
               </span>
             </div>
           </div>
@@ -204,31 +193,81 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section id="how-it-works" className="py-20 sm:py-28">
+        <section id="pipeline" className="py-20 sm:py-28">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="mx-auto mb-16 max-w-2xl text-center">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                From Profile to Feedback in{" "}
-                <span className="text-foreground">4 Simple Steps</span>
+                From Profile to{" "}
+                <span className="text-foreground">Scorecard</span>
               </h2>
               <p className="mt-4 text-muted-foreground">
-                No sign-up, no setup. Just connect your profiles and start practicing.
+                See how your data flows through the AI pipeline — fully automated, end to end.
               </p>
             </div>
 
-            <div className="relative grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="absolute top-8 left-0 right-0 hidden h-px bg-gradient-to-r from-white/5 via-white/20 to-white/5 lg:block" />
+            <div className="relative mx-auto max-w-3xl">
+              <div className="absolute top-0 bottom-0 left-6 hidden w-px bg-gradient-to-b from-white/5 via-white/20 to-white/5 md:block" />
 
-              {steps.map((step, i) => (
-                <div key={step.title} className="relative flex flex-col items-center text-center">
-                  <div className="relative mb-6 flex size-16 items-center justify-center rounded-2xl border border-white/20 bg-white/10">
-                    <span className="absolute -top-2 -right-2 flex size-6 items-center justify-center rounded-full bg-foreground text-[11px] font-bold text-background">
-                      {i + 1}
-                    </span>
-                    <step.icon className="size-7 text-foreground" />
+              {[
+                {
+                  icon: Users,
+                  title: "Profile Submission",
+                  desc: "You submit your GitHub & LinkedIn URLs. Optional metadata like name, role, and experience level is collected.",
+                  badge: "Frontend",
+                  color: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
+                },
+                {
+                  icon: Database,
+                  title: "Data Ingestion & Embedding",
+                  desc: "Backend fetches repos, READMEs, and languages. Gemini embeds everything into vector chunks stored in pgvector.",
+                  badge: "Backend",
+                  color: "text-blue-400 border-blue-500/30 bg-blue-500/10",
+                },
+                {
+                  icon: BrainCircuit,
+                  title: "Question Generation",
+                  desc: "Gemini LLM generates tailored questions — technical, behavioral, project deep-dive, system design, and coding — from your embedded profile.",
+                  badge: "AI",
+                  color: "text-purple-400 border-purple-500/30 bg-purple-500/10",
+                },
+                {
+                  icon: HelpCircle,
+                  title: "Interview Session",
+                  desc: "Answer one question at a time via text or audio recording. Track progress, skip questions, and use Cmd+Enter to submit quickly.",
+                  badge: "Frontend",
+                  color: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
+                },
+                {
+                  icon: ClipboardCheck,
+                  title: "Answer Evaluation",
+                  desc: "Each answer is scored (0-100) by Gemini with structured feedback, strengths, and weaknesses extracted automatically.",
+                  badge: "AI",
+                  color: "text-purple-400 border-purple-500/30 bg-purple-500/10",
+                },
+                {
+                  icon: LayoutDashboard,
+                  title: "Results & Scorecard",
+                  desc: "View your overall score, per-category breakdown, per-question cards with feedback, strengths, weaknesses, and audio playback.",
+                  badge: "Frontend",
+                  color: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
+                },
+              ].map((step, i) => (
+                <div key={step.title} className="group relative flex gap-5 pb-12 last:pb-0">
+                  <div className="relative z-10 flex size-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-background/60 backdrop-blur-xl transition-all duration-300 group-hover:border-accent/30 group-hover:bg-accent/10">
+                    <step.icon className="size-5 text-foreground transition-all duration-300 group-hover:text-accent" />
                   </div>
-                  <h3 className="mb-2 text-base font-semibold">{step.title}</h3>
-                  <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">{step.description}</p>
+                  <div className="flex-1 pt-1.5">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-base font-semibold text-foreground">{step.title}</h3>
+                      <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${step.color}`}>
+                        {step.badge}
+                      </span>
+                    </div>
+                    <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{step.desc}</p>
+                  </div>
+                  {i < 5 && (
+                    <div className="absolute top-12 left-[1.375rem] hidden h-full w-px bg-gradient-to-b from-white/10 via-white/5 to-transparent md:block" />
+                  )}
                 </div>
               ))}
             </div>
@@ -272,7 +311,7 @@ export function LandingPage() {
               <ul className="space-y-2">
                 {[
                   { label: "Features", id: "features" },
-                  { label: "How It Works", id: "how-it-works" },
+                  { label: "Pipeline", id: "pipeline" },
                   { label: "Get Started", id: "form" },
                 ].map((item) => (
                   <li key={item.id}>
@@ -310,6 +349,10 @@ export function LandingPage() {
               <span className="flex items-center gap-1.5">
                 <BrainCircuit className="size-3" />
                 Local-First
+              </span>
+              <span className="flex items-center gap-1.5 text-accent/70">
+                <Award className="size-3" />
+                AI-Powered
               </span>
             </div>
           </div>
