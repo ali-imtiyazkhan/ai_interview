@@ -76,6 +76,7 @@ export function Form() {
       const { data } = await axios.post(`${BACKEND_URL}/api/v1/pre-interview`, {
         github,
         linkedin,
+        linkedinProfileText: linkedinText.trim() || undefined,
         candidateName: candidateName || undefined,
         jobRole: jobRole || undefined,
         experienceLevel: experienceLevel || undefined,

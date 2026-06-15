@@ -17,10 +17,15 @@ export async function embedLinkedinData(req: Request, res: Response) {
       return;
     }
 
-    // Try scraping first, fall back to manual text
-    let sourceText = profileText ?? "";
+    // Try scraping first, fall back to manual text or stored profile data
+    let sourceText = profileText?.trim() ?? "";
 
-    if (linkedinUrl && !profileText) {
+    if (!sourceText && interview.linkedinMetaData) {
+      const meta = interview.linkedinMetaData as { manualProfileText?: string };
+      sourceText = meta.manualProfileText?.trim() ?? "";
+    }
+
+    if (linkedinUrl && !sourceText) {
       const profile = await scrapeLinkedInProfile(linkedinUrl);
       if (profile.skills.length > 0 || profile.experience.length > 0) {
         sourceText = [

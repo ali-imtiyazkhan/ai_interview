@@ -100,8 +100,32 @@ export function Interview() {
 
     async function startInterview() {
       try {
-        const { data } = await axios.post(`${BACKEND_URL}/api/v1/interview/${id}/start`);
+        const { data } = await axios.post<{
+          questions: Question[];
+          answeredQuestionIds?: string[];
+        }>(`${BACKEND_URL}/api/v1/interview/${id}/start`);
+
+        const answeredIds = new Set(data.answeredQuestionIds ?? []);
         setQuestions(data.questions);
+
+        if (data.questions.length === 0) {
+          toast.error("No questions were generated", {
+            icon: <CircleAlert className="size-4" />,
+          });
+          navigate("/");
+          return;
+        }
+
+        if (answeredIds.size >= data.questions.length) {
+          navigate(`/result?id=${id}`);
+          return;
+        }
+
+        const resumeIndex = data.questions.findIndex((q) => !answeredIds.has(q.id));
+        if (resumeIndex > 0) {
+          setCurrentIndex(resumeIndex);
+        }
+
         setStarting(false);
         setLoading(false);
       } catch (error) {

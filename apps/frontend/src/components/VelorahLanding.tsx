@@ -278,13 +278,17 @@ export function VelorahLanding() {
             <div>
               <h4 className="mb-4 text-sm font-semibold">Quick Links</h4>
               <ul className="space-y-2">
-                {["Features", "How It Works", "Get Started"].map((label) => (
-                  <li key={label}>
+                {[
+                  { label: "Features", id: "features" },
+                  { label: "How It Works", id: "how-it-works" },
+                  { label: "Get Started", id: "form" },
+                ].map((item) => (
+                  <li key={item.id}>
                     <button
-                      onClick={() => scrollTo(label.toLowerCase().replace(/\s+/g, "-"))}
+                      onClick={() => scrollTo(item.id)}
                       className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
-                      {label}
+                      {item.label}
                     </button>
                   </li>
                 ))}

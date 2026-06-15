@@ -78,9 +78,10 @@ describe("embedLinkedinSchema", () => {
 });
 
 describe("answerSchema", () => {
-  test("validates with questionId", () => {
+  test("validates with transcript", () => {
     const result = answerSchema.safeParse({
       questionId: "550e8400-e29b-41d4-a716-446655440000",
+      transcript: "My answer is...",
     });
     expect(result.success).toBe(true);
   });
@@ -92,5 +93,12 @@ describe("answerSchema", () => {
       audioUrl: "data:audio/webm;base64,SGVsbG8=",
     });
     expect(result.success).toBe(true);
+  });
+
+  test("rejects when neither transcript nor audioUrl is provided", () => {
+    const result = answerSchema.safeParse({
+      questionId: "550e8400-e29b-41d4-a716-446655440000",
+    });
+    expect(result.success).toBe(false);
   });
 });

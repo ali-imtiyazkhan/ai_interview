@@ -3,6 +3,18 @@ import { prisma } from "../config/db";
 import { generateQuestions, evaluateAnswer } from "../services/interview.service";
 import type { Interview, Embedding, Question, Answer } from "../../generated/prisma/client";
 
+async function buildStartResponse(interviewId: string, questions: Question[]) {
+  const answered = await prisma.answer.findMany({
+    where: { interviewId },
+    select: { questionId: true },
+  });
+
+  return {
+    questions,
+    answeredQuestionIds: answered.map((a) => a.questionId),
+  };
+}
+
 export async function startInterview(req: Request, res: Response) {
   try {
     const { id } = req.params as { id: string };
@@ -14,6 +26,16 @@ export async function startInterview(req: Request, res: Response) {
 
     if (!interview) {
       res.status(404).json({ message: "Interview not found" });
+      return;
+    }
+
+    const existingQuestions = await prisma.question.findMany({
+      where: { interviewId: id },
+      orderBy: { order: "asc" },
+    });
+
+    if (existingQuestions.length > 0) {
+      res.json(await buildStartResponse(id, existingQuestions));
       return;
     }
 
@@ -35,25 +57,37 @@ export async function startInterview(req: Request, res: Response) {
       categories: ["TECHNICAL", "BEHAVIORAL", "PROJECT_DEEP_DIVE", "SKILL_ASSESSMENT", "SYSTEM_DESIGN"],
     });
 
-    const questions = await Promise.all(
-      generated.map((q: { question: string; category: string }, i: number) =>
-        prisma.question.create({
-          data: {
-            interviewId: id,
-            category: q.category as any,
-            question: q.question,
-            order: i + 1,
-          },
-        })
-      )
-    );
+    const questions = await prisma.$transaction(async (tx) => {
+      const count = await tx.question.count({ where: { interviewId: id } });
+      if (count > 0) {
+        return tx.question.findMany({
+          where: { interviewId: id },
+          orderBy: { order: "asc" },
+        });
+      }
 
-    await prisma.interview.update({
-      where: { id },
-      data: { status: "InProgress" },
+      const created = await Promise.all(
+        generated.map((q: { question: string; category: string }, i: number) =>
+          tx.question.create({
+            data: {
+              interviewId: id,
+              category: q.category as Question["category"],
+              question: q.question,
+              order: i + 1,
+            },
+          })
+        )
+      );
+
+      await tx.interview.update({
+        where: { id },
+        data: { status: "InProgress" },
+      });
+
+      return created;
     });
 
-    res.json({ questions });
+    res.json(await buildStartResponse(id, questions));
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to start interview";
     res.status(500).json({ message });
@@ -121,9 +155,18 @@ export async function submitAnswer(req: Request, res: Response) {
       where: { interviewId: id },
     });
     if (totalQuestions > 0 && answeredQuestions.length >= totalQuestions) {
+      const answers = await prisma.answer.findMany({
+        where: { interviewId: id },
+        select: { score: true },
+      });
+      const averageScore =
+        answers.length > 0
+          ? Math.round(answers.reduce((sum, a) => sum + (a.score ?? 0), 0) / answers.length)
+          : 0;
+
       await prisma.interview.update({
         where: { id },
-        data: { status: "Done" },
+        data: { status: "Done", score: averageScore },
       });
     }
 

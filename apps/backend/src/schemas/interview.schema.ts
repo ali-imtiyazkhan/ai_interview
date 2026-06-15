@@ -13,11 +13,16 @@ export const interviewIdSchema = z.object({
   id: z.string().uuid("Invalid interview ID"),
 });
 
-export const answerSchema = z.object({
-  questionId: z.string().uuid(),
-  transcript: z.string().optional(),
-  audioUrl: z.string().optional(),
-});
+export const answerSchema = z
+  .object({
+    questionId: z.string().uuid(),
+    transcript: z.string().optional(),
+    audioUrl: z.string().optional(),
+  })
+  .refine(
+    (data) => Boolean(data.transcript?.trim()) || Boolean(data.audioUrl),
+    { message: "Either transcript or audioUrl is required", path: ["transcript"] },
+  );
 
 export const questionRequestSchema = z.object({
   interviewId: z.string().uuid(),

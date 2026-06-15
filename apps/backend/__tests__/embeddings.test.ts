@@ -5,7 +5,7 @@ describe("generateEmbedding", () => {
   test("returns an embedding vector for a single text", async () => {
     const embedding = await generateEmbedding("What is the meaning of life?");
     expect(Array.isArray(embedding)).toBe(true);
-    expect(embedding.length).toBeGreaterThan(0);
+    expect(embedding.length).toBe(1536);
     expect(embedding.every((v) => typeof v === "number")).toBe(true);
   });
 

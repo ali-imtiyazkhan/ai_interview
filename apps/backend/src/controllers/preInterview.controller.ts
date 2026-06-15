@@ -7,12 +7,13 @@ import { scrapeLinkedInProfile } from "../services/linkedin.service";
 
 export async function createPreInterview(req: Request, res: Response) {
   try {
-    const { github, linkedin, candidateName, jobRole, experienceLevel } = req.body as {
+    const { github, linkedin, candidateName, jobRole, experienceLevel, linkedinProfileText } = req.body as {
       github: string;
       linkedin: string;
       candidateName?: string;
       jobRole?: string;
       experienceLevel?: string;
+      linkedinProfileText?: string;
     };
 
     if (!github.includes("github.com")) {
@@ -27,7 +28,9 @@ export async function createPreInterview(req: Request, res: Response) {
     const githubUsername = extractUsername(github);
 
     const repos = await fetchUserRepos(githubUsername);
-    const linkedinProfile = await scrapeLinkedInProfile(linkedin);
+    const linkedinProfile = linkedinProfileText?.trim()
+      ? { manualProfileText: linkedinProfileText.trim() }
+      : await scrapeLinkedInProfile(linkedin);
 
     const interview = await prisma.interview.create({
       data: {

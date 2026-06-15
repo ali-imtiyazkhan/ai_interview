@@ -14,6 +14,8 @@ export async function generateEmbedding(text: string): Promise<number[]> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         content: { parts: [{ text }] },
+        // Must match pgvector column size in schema.prisma (vector(1536))
+        outputDimensionality: 1536,
       }),
     },
   );
