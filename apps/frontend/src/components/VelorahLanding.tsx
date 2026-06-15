@@ -89,8 +89,8 @@ export function VelorahLanding() {
       {/* Header */}
       <header className="fixed top-0 right-0 left-0 z-50 border-b border-white/10 bg-background/60 backdrop-blur-2xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <a href="/" className="flex items-center gap-2.5 text-2xl tracking-tight text-foreground" style={displayFont} aria-label="Velorah home">
-            Velorah<sup className="text-xs">&reg;</sup>
+          <a href="/" className="flex items-center gap-2.5 text-2xl tracking-tight text-foreground" style={displayFont} aria-label="SkillScribe home">
+            SkillScribe<sup className="text-xs">&reg;</sup>
           </a>
 
           <nav className="hidden items-center gap-1 md:flex">
@@ -267,7 +267,7 @@ export function VelorahLanding() {
             <div>
               <div className="mb-4 flex items-center gap-2.5">
                 <a href="/" className="text-xl tracking-tight text-foreground" style={displayFont}>
-                  Velorah<sup className="text-xs">&reg;</sup>
+                  SkillScribe<sup className="text-xs">&reg;</sup>
                 </a>
               </div>
               <p className="text-sm leading-relaxed text-muted-foreground">
@@ -308,7 +308,7 @@ export function VelorahLanding() {
 
           <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
             <p className="text-xs text-muted-foreground">
-              &copy; {new Date().getFullYear()} Velorah. Powered by local LLM.
+              &copy; {new Date().getFullYear()} SkillScribe. Powered by local LLM.
             </p>
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">

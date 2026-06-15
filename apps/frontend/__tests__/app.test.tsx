@@ -11,7 +11,7 @@ describe("App", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getAllByText(/velorah/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/SkillScribe/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/dreams/i)).toBeTruthy();
   });
 
@@ -32,6 +32,6 @@ describe("App", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getAllByText(/velorah/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/SkillScribe/i).length).toBeGreaterThan(0);
   });
 });
