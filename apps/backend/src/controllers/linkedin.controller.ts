@@ -27,18 +27,8 @@ export async function embedLinkedinData(req: Request, res: Response) {
 
     if (linkedinUrl && !sourceText) {
       const profile = await scrapeLinkedInProfile(linkedinUrl);
-      if (profile.skills.length > 0 || profile.experience.length > 0) {
-        sourceText = [
-          `Name: ${profile.name}`,
-          `Headline: ${profile.headline ?? ""}`,
-          `Skills: ${profile.skills.join(", ")}`,
-          ...profile.experience.map(
-            (e) => `Experience: ${e.title} at ${e.company} (${e.duration}) - ${e.description ?? ""}`,
-          ),
-          ...profile.education.map(
-            (e) => `Education: ${e.degree ?? ""} in ${e.field ?? ""} at ${e.school} (${e.duration})`,
-          ),
-        ].join("\n\n");
+      if (profile.rawText) {
+        sourceText = profile.rawText;
       }
     }
 
