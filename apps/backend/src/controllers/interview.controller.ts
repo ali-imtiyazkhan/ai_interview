@@ -46,10 +46,24 @@ export async function startInterview(req: Request, res: Response) {
     if (ctx.jobRole) metadataParts.push(`Target Role: ${ctx.jobRole}`);
     if (ctx.experienceLevel) metadataParts.push(`Experience Level: ${ctx.experienceLevel}`);
 
-    const context = [
-      ...metadataParts,
-      ...ctx.embeddings.map((e: Embedding) => `[${e.sourceType}] ${e.chunkText}`),
-    ].join("\n\n");
+    const resumeChunks = ctx.embeddings
+      .filter((e: Embedding) => e.sourceType === "RESUME")
+      .map((e: Embedding) => e.chunkText);
+
+    const githubChunks = ctx.embeddings
+      .filter((e: Embedding) => e.sourceType === "GITHUB_REPO" || e.sourceType === "GITHUB_README")
+      .map((e: Embedding) => e.chunkText);
+
+    const linkedinChunks = ctx.embeddings
+      .filter((e: Embedding) => e.sourceType === "LINKEDIN_PROFILE")
+      .map((e: Embedding) => e.chunkText);
+
+    const sections: string[] = [...metadataParts];
+    if (resumeChunks.length) sections.push("=== RESUME DATA ===\n" + resumeChunks.join("\n"));
+    if (githubChunks.length) sections.push("=== GITHUB DATA ===\n" + githubChunks.join("\n"));
+    if (linkedinChunks.length) sections.push("=== LINKEDIN DATA ===\n" + linkedinChunks.join("\n"));
+
+    const context = sections.join("\n\n");
 
     const generated = await generateQuestions({
       context: context || "No candidate data available yet",
