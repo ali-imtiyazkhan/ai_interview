@@ -3,6 +3,7 @@ import cors from "cors";
 import { env } from "./config/env";
 import { appRoutes } from "./routes";
 import { errorHandler } from "./middleware/errorHandler";
+import resumeRoutes from "./routes/resume.routes";
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use(appRoutes);
+app.use("/api/v1/resume", resumeRoutes);
 
 app.use(errorHandler);
 
