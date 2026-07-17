@@ -1,4 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { fetchRepoReadme, fetchRepoLanguages, truncateReadme } from "./github.service";
+import { generateEmbedding, chunkText } from "./embeddings.service";
+import { prisma } from "../config/db";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -8,6 +11,71 @@ interface ExtractedResume {
     education: { school: string; degree: string; field: string; year: string }[];
     projects: { name: string; description: string; technologies: string[] }[];
     summary: string;
+}
+
+const GITHUB_REPO_REGEX = /https?:\/\/(?:www\.)?github\.com\/([a-zA-Z0-9_.-]+)\/([a-zA-Z0-9_.-]+?)(?:\/|$|[\s,;)]|\.(?:git|png|jpg|svg))?/g;
+
+function extractGitHubUrls(text: string): { owner: string; repo: string }[] {
+    const urls: { owner: string; repo: string }[] = [];
+    const seen = new Set<string>();
+    let match: RegExpExecArray | null;
+    while ((match = GITHUB_REPO_REGEX.exec(text)) !== null) {
+        const owner = match[1]!;
+        const repo = match[2]!;
+        const key = `${owner}/${repo}`.toLowerCase();
+        if (!seen.has(key)) {
+            seen.add(key);
+            urls.push({ owner, repo });
+        }
+    }
+    return urls;
+}
+
+export async function embedResumeRepos(interviewId: string, projects: { name: string; description: string; technologies: string[] }[]): Promise<{ repo: string; embedded: boolean }[]> {
+    const results: { repo: string; embedded: boolean }[] = [];
+
+    const allText = projects.map(p => `${p.name}: ${p.description} ${p.technologies.join(", ")}`).join("\n");
+    const repoRefs = extractGitHubUrls(allText);
+
+    for (const { owner, repo } of repoRefs) {
+        try {
+            const readme = await fetchRepoReadme(owner, repo);
+            const languages = await fetchRepoLanguages(owner, repo);
+
+            const contextParts: string[] = [`GitHub repository: ${owner}/${repo}`];
+
+            if (readme) {
+                const truncated = truncateReadme(readme);
+                contextParts.push(`README:\n${truncated}`);
+            }
+
+            if (languages && Object.keys(languages).length > 0) {
+                const total = Object.values(languages).reduce((a, b) => a + b, 0);
+                const langPct = Object.entries(languages)
+                    .sort(([, a], [, b]) => b - a)
+                    .map(([lang, bytes]) => `${lang}: ${((bytes / total) * 100).toFixed(1)}%`)
+                    .join(", ");
+                contextParts.push(`Languages: ${langPct}`);
+            }
+
+            const contextText = contextParts.join("\n\n");
+            const chunks = chunkText(contextText, 1000);
+
+            for (const chunk of chunks) {
+                const embedding = await generateEmbedding(chunk);
+                await prisma.$executeRaw`
+          INSERT INTO "Embedding" (id, "interviewId", "sourceType", "chunkText", embedding, metadata, "createdAt")
+          VALUES (gen_random_uuid(), ${interviewId}::uuid, 'RESUME_REPO'::"EmbeddingSourceType", ${chunk}, ${JSON.stringify(embedding)}::vector, ${JSON.stringify({ owner, repo })}::jsonb, NOW())
+        `;
+            }
+
+            results.push({ repo: `${owner}/${repo}`, embedded: true });
+        } catch {
+            results.push({ repo: `${owner}/${repo}`, embedded: false });
+        }
+    }
+
+    return results;
 }
 
 export async function parseResumeWithAI(rawText: string): Promise<ExtractedResume> {
