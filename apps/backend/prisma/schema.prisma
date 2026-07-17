@@ -25,6 +25,7 @@ enum EmbeddingSourceType {
   LINKEDIN_EDUCATION
   LINKEDIN_SKILLS
   RESUME
+  RESUME_REPO
 }
 
 enum QuestionCategory {

@@ -45,8 +45,18 @@ export async function generateQuestions(params: GenerateQuestionsParams) {
     : "TECHNICAL, BEHAVIORAL, PROJECT_DEEP_DIVE";
 
   const prompt = `
-You are an interview assistant. Based on the following candidate profile, generate ${count} personalized interview questions.
-Cover these categories evenly: ${categoriesList}.
+You are a technical interview assistant. Generate ${count} highly personalized interview questions based on the candidate's actual profile data below.
+
+The data comes from their GitHub, LinkedIn, and/or Resume. Extract key SKILLS, PROJECTS, and EXPERIENCE from it first, then create questions that genuinely test those specific areas.
+
+REQUIREMENTS:
+- For PROJECT_DEEP_DIVE: reference specific projects from the profile (e.g., "In your project X, why did you choose Y?").
+- For SKILL_ASSESSMENT: test the specific technologies/languages the candidate has actually used.
+- For TECHNICAL: relate to their listed tech stack.
+- For BEHAVIORAL: tie to their experience level and past roles.
+- For SYSTEM_DESIGN: scope appropriately for their experience level.
+
+Categories to distribute evenly: ${categoriesList}.
 
 Candidate Profile:
 ${context}
