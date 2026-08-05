@@ -3,34 +3,23 @@ import { prisma } from "../config/db";
 import type { Prisma } from "../../generated/prisma/client";
 import { extractUsername } from "../utils/username";
 import { fetchUserRepos } from "../services/github.service";
-import { scrapeLinkedInProfile } from "../services/linkedin.service";
 
 export async function createPreInterview(req: Request, res: Response) {
   try {
-    const { github, linkedin, candidateName, jobRole, experienceLevel, linkedinProfileText } = req.body as {
+    const { github, candidateName, jobRole, experienceLevel } = req.body as {
       github: string;
-      linkedin: string;
       candidateName?: string;
       jobRole?: string;
       experienceLevel?: string;
-      linkedinProfileText?: string;
     };
 
     if (!github.includes("github.com")) {
       res.status(400).json({ message: "GitHub URL must contain github.com" });
       return;
     }
-    if (!linkedin.includes("linkedin.com")) {
-      res.status(400).json({ message: "LinkedIn URL must contain linkedin.com" });
-      return;
-    }
 
     const githubUsername = extractUsername(github);
-
     const repos = await fetchUserRepos(githubUsername);
-    const linkedinProfile = linkedinProfileText?.trim()
-      ? { manualProfileText: linkedinProfileText.trim() }
-      : await scrapeLinkedInProfile(linkedin);
 
     const interview = await prisma.interview.create({
       data: {
@@ -38,7 +27,6 @@ export async function createPreInterview(req: Request, res: Response) {
         jobRole: jobRole ?? null,
         experienceLevel: experienceLevel ?? null,
         githubMetaData: repos as unknown as Prisma.InputJsonValue,
-        linkedinMetaData: linkedinProfile as unknown as Prisma.InputJsonValue,
         status: "Pre",
         score: 0,
       },

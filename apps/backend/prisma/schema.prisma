@@ -20,10 +20,6 @@ enum EmbeddingSourceType {
   GITHUB_README
   GITHUB_CODE
   GITHUB_LANGUAGES
-  LINKEDIN_PROFILE
-  LINKEDIN_EXPERIENCE
-  LINKEDIN_EDUCATION
-  LINKEDIN_SKILLS
   RESUME
   RESUME_REPO
 }
@@ -43,7 +39,6 @@ model Interview {
   jobRole          String?
   experienceLevel  String?
   githubMetaData   Json?
-  linkedinMetaData Json?
   status           InterviewStatus
   score            Int              @default(0)
   createdAt        DateTime         @default(now())

@@ -17,9 +17,9 @@ describe("generateEmbedding", () => {
     ];
     const embeddings = await Promise.all(texts.map(generateEmbedding));
     expect(embeddings).toHaveLength(3);
-    const [first, ...rest] = embeddings;
-    for (const emb of rest) {
-      expect(emb.length).toBe(first.length);
+    const firstLength = embeddings[0]?.length ?? 0;
+    for (const emb of embeddings) {
+      expect(emb.length).toBe(firstLength);
     }
     expect(embeddings.some((emb) => emb.length > 0)).toBe(true);
   });

@@ -54,7 +54,6 @@
   .stage:nth-of-type(3) { animation-delay: 0.9s; }
   .stage:nth-of-type(4) { animation-delay: 1.5s; }
   .stage:nth-of-type(5) { animation-delay: 2.1s; }
-  .stage:nth-of-type(6) { animation-delay: 2.7s; }
 
   @keyframes fadeUp {
     to { opacity: 1; transform: translateY(0); }
@@ -93,7 +92,6 @@
   .stage:nth-of-type(3) .glow-box { animation-delay: 0.3s; }
   .stage:nth-of-type(4) .glow-box { animation-delay: 0.9s; }
   .stage:nth-of-type(5) .glow-box { animation-delay: 1.5s; }
-  .stage:nth-of-type(6) .glow-box { animation-delay: 2.1s; }
 
   .icon {
     stroke: #f8fafc;
@@ -111,14 +109,12 @@
 
     <!-- connector paths -->
     <path id="p1" class="conn-line" d="M 200 88 H 260 V 130 H 300" />
-    <path id="p2" class="conn-line" d="M 200 168 H 260 V 130 H 300" />
     <path id="p3" class="conn-line" d="M 390 158 V 200" />
     <path id="p4" class="conn-line" d="M 390 258 V 300" />
     <path id="p5" class="conn-line" d="M 390 358 V 382" />
 
     <!-- flow dots -->
     <circle class="flow-dot" r="4" style="offset-path: path('M 200 88 H 260 V 130 H 300'); animation-delay: 0s;" />
-    <circle class="flow-dot" r="4" style="offset-path: path('M 200 168 H 260 V 130 H 300'); animation-delay: 0.6s;" />
     <circle class="flow-dot" r="4" style="offset-path: path('M 390 158 V 200'); animation-delay: 1.2s;" />
     <circle class="flow-dot" r="4" style="offset-path: path('M 390 258 V 300'); animation-delay: 1.8s;" />
     <circle class="flow-dot" r="4" style="offset-path: path('M 390 358 V 382'); animation-delay: 2.4s;" />
@@ -131,17 +127,6 @@
       </g>
       <text class="node-title" x="120" y="80">GitHub</text>
       <text class="node-sub" x="120" y="98">Repos, READMEs, languages</text>
-    </g>
-
-    <!-- LinkedIn -->
-    <g class="stage">
-      <rect class="node-box glow-box" x="40" y="140" width="160" height="56" />
-      <g transform="translate(58,156)">
-        <rect class="icon" x="0" y="0" width="20" height="20" rx="3"/>
-        <path class="icon" d="M5 8.5V16M5 5.2V5.3M9.5 16V11c0-1.5 1-2.5 2.5-2.5S14.5 9.5 14.5 11v5M9.5 8.5V16"/>
-      </g>
-      <text class="node-title" x="120" y="160">LinkedIn</text>
-      <text class="node-sub" x="120" y="178">Experience, education, skills</text>
     </g>
 
     <!-- Vector embedding -->

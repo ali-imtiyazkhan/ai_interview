@@ -27,7 +27,7 @@ const features = [
   {
     icon: BrainCircuit,
     title: "AI-Powered Questions",
-    description: "Questions generated from your GitHub repos and LinkedIn profile — tailored to your exact skill set and experience.",
+    description: "Questions generated from your GitHub repos and resume — tailored to your exact skill set and experience.",
   },
   {
     icon: Mic,
@@ -148,8 +148,8 @@ export function LandingPage() {
                 GitHub
               </span>
               <span className="flex items-center gap-1.5">
-                <UserRound className="size-4" />
-                LinkedIn
+                <ScrollText className="size-4" />
+                Resume
               </span>
               <span className="flex items-center gap-1.5">
                 <BrainCircuit className="size-4" />
@@ -212,7 +212,7 @@ export function LandingPage() {
                 {
                   icon: Users,
                   title: "Profile Submission",
-                  desc: "You submit your GitHub & LinkedIn URLs. Optional metadata like name, role, and experience level is collected.",
+                  desc: "You submit your GitHub URL and resume. Optional metadata like name, role, and experience level is collected.",
                   badge: "Frontend",
                   color: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
                 },

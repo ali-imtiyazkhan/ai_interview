@@ -1,13 +1,13 @@
 # AI Mock Interview Platform
 
-An AI-powered mock interview platform that generates personalized interview questions based on a candidate's real GitHub and LinkedIn profile data.
+An AI-powered mock interview platform that generates personalized interview questions based on a candidate's real GitHub profile data and resume.
 
 ## How It Works
 
-1. **Candidate submits profiles** — Enters their GitHub and LinkedIn profile URLs
-2. **Data ingestion** — The platform fetches:
+1. **Candidate submits profile** — Enters their GitHub profile URL (and optionally uploads a resume)
+2. **Data ingestion** — The platform:
    - **GitHub**: Repositories, READMEs, languages, topics
-   - **LinkedIn**: Profile, work experience, education, skills
+   - **Resume**: Skills, experience, education, projects (including GitHub repo URLs found in the resume)
 3. **Vector embedding** — All fetched data is chunked and embedded into a PostgreSQL vector database (pgvector)
 4. **AI question generation** — Google Gemini generates contextual interview questions based on the candidate's actual work. For example:
    - *"In this project you use Socket.IO — why not raw WebSockets?"*
@@ -39,7 +39,7 @@ interview_promo/
       src/
         routes/       # API route definitions
         controllers/  # Request handlers
-        services/     # GitHub API, LinkedIn scraping, embeddings, LLM
+        services/     # GitHub API, resume parsing, embeddings, LLM
         middleware/    # Zod validation, error handling
         schemas/      # Zod validation schemas
         config/       # DB client, env config
@@ -98,9 +98,10 @@ The backend runs on `http://localhost:3001` and the frontend on `http://localhos
 
 | Method | Path | Description |
 |---|---|---|
-| POST | `/api/v1/pre-interview` | Submit GitHub + LinkedIn URLs, create interview |
+| POST | `/api/v1/pre-interview` | Submit GitHub URL, create interview |
 | POST | `/api/v1/pre-interview/embed-github` | Embed GitHub data (repos, READMEs, languages) |
-| POST | `/api/v1/pre-interview/embed-linkedin` | Embed LinkedIn data (profile, experience, education) |
+| POST | `/api/v1/resume/upload` | Upload resume, extract skills/projects, embed resume + repo data |
+| POST | `/api/v1/resume/parse-text` | Parse resume text and embed extracted data |
 | POST | `/api/v1/interview/:id/start` | Generate AI questions and start interview |
 | POST | `/api/v1/interview/:id/answer` | Submit answer for evaluation |
 | GET | `/api/v1/interview/:id/result` | Get interview results with scores and feedback |

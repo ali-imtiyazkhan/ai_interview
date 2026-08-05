@@ -10,10 +10,6 @@ describe("extractUsername", () => {
     expect(extractUsername("https://github.com/octocat/")).toBe("octocat");
   });
 
-  test("extracts username from LinkedIn URL", () => {
-    expect(extractUsername("https://linkedin.com/in/johndoe")).toBe("johndoe");
-  });
-
   test("handles empty URL", () => {
     expect(extractUsername("")).toBe("");
   });

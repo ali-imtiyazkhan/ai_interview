@@ -58,15 +58,10 @@ export async function startInterview(req: Request, res: Response) {
       .filter((e: Embedding) => e.sourceType === "RESUME_REPO")
       .map((e: Embedding) => e.chunkText);
 
-    const linkedinChunks = ctx.embeddings
-      .filter((e: Embedding) => e.sourceType === "LINKEDIN_PROFILE")
-      .map((e: Embedding) => e.chunkText);
-
     const sections: string[] = [...metadataParts];
     if (resumeChunks.length) sections.push("=== RESUME DATA ===\n" + resumeChunks.join("\n"));
     if (resumeRepoChunks.length) sections.push("=== RESUME REPOS (projects from resume) ===\n" + resumeRepoChunks.join("\n"));
     if (githubChunks.length) sections.push("=== GITHUB DATA ===\n" + githubChunks.join("\n"));
-    if (linkedinChunks.length) sections.push("=== LINKEDIN DATA ===\n" + linkedinChunks.join("\n"));
 
     const context = sections.join("\n\n");
 
