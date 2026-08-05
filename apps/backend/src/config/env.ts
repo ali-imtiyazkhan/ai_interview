@@ -19,4 +19,5 @@ export const env = {
   githubMaxReadmeChars: parseIntEnv("GITHUB_MAX_README_CHARS", 3000),
   githubMaxReadmeChunks: parseIntEnv("GITHUB_MAX_README_CHUNKS", 2),
   githubSummaryChunkSize: parseIntEnv("GITHUB_SUMMARY_CHUNK_SIZE", 8000),
+  githubMaxRepos: parseIntEnv("GITHUB_MAX_REPOS", 4),
 };

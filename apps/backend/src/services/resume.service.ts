@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { fetchRepoReadme, fetchRepoLanguages, truncateReadme } from "./github.service";
 import { generateEmbedding, chunkText } from "./embeddings.service";
 import { prisma } from "../config/db";
+import { env } from "../config/env";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -35,7 +36,7 @@ export async function embedResumeRepos(interviewId: string, projects: { name: st
     const results: { repo: string; embedded: boolean }[] = [];
 
     const allText = projects.map(p => `${p.name}: ${p.description} ${p.technologies.join(", ")}`).join("\n");
-    const repoRefs = extractGitHubUrls(allText);
+    const repoRefs = extractGitHubUrls(allText).slice(0, env.githubMaxRepos ?? 4);
 
     for (const { owner, repo } of repoRefs) {
         try {

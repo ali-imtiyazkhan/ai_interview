@@ -2,6 +2,20 @@ import type { Request, Response, NextFunction } from "express";
 import { parseResumeWithAI, buildResumeContext, embedResumeRepos } from "../services/resume.service";
 import { generateEmbedding, chunkText } from "../services/embeddings.service";
 import { prisma } from "../config/db";
+import { PDFParse } from "pdf-parse";
+import mammoth from "mammoth";
+
+async function extractTextFromBuffer(buffer: Buffer, filename: string) : Promise<string> {
+   const ext = filename.split(".").pop()?.toLowerCase() ?? "";
+   if (ext === "pdf") {
+    const parsed = await new PDFParse({ data: buffer }).getText();
+    return parsed.text;
+   } else if (ext === "docx") {
+    const {value} = await mammoth.extractRawText({buffer})
+    return value;
+   } else {
+    return buffer.toString("utf-8");
+} }
 
 export async function uploadResume(req: Request, res: Response, next: NextFunction) {
     try {
@@ -12,7 +26,7 @@ export async function uploadResume(req: Request, res: Response, next: NextFuncti
             return res.status(400).json({ error: "No file uploaded" });
         }
 
-        const rawText = file.buffer.toString("utf-8");
+        const rawText = await extractTextFromBuffer(file.buffer, file.originalname);
 
         const parsed = await parseResumeWithAI(rawText);
         const contextText = buildResumeContext(parsed);
