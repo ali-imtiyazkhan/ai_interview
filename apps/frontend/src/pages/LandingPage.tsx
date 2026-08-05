@@ -1,6 +1,6 @@
-import { Form } from "../components/Form";
 import { Button } from "../components/ui/button";
 import { Toaster } from "sonner";
+import { useNavigate } from "react-router-dom";
 import {
   BrainCircuit,
   Sparkles,
@@ -49,6 +49,8 @@ const features = [
 const displayFont = { fontFamily: "'Instrument Serif', serif" };
 
 export function LandingPage() {
+  const navigate = useNavigate();
+
   function scrollTo(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   }
@@ -78,7 +80,6 @@ export function LandingPage() {
             {[
               { label: "Features", href: "#features" },
               { label: "Pipeline", href: "#pipeline" },
-              { label: "Get Started", href: "#form" },
             ].map((item) => (
               <button
                 key={item.href}
@@ -88,11 +89,17 @@ export function LandingPage() {
                 {item.label}
               </button>
             ))}
+            <button
+              onClick={() => navigate("/setup")}
+              className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+            >
+              Get Started
+            </button>
           </nav>
 
           <Button
             size="sm"
-            onClick={() => scrollTo("form")}
+            onClick={() => navigate("/setup")}
             className="rounded-lg text-xs font-semibold"
           >
             Start Interview
@@ -125,7 +132,7 @@ export function LandingPage() {
             <div className="animate-fade-rise-delay-2 mt-10 flex flex-wrap items-center gap-3">
               <Button
                 size="lg"
-                onClick={() => scrollTo("form")}
+                onClick={() => navigate("/setup")}
                 className="h-12 rounded-xl px-8 text-sm font-semibold shadow-lg"
               >
                 Start Your Interview
@@ -281,12 +288,19 @@ export function LandingPage() {
                 Ready to <span className="text-foreground">Practice?</span>
               </h2>
               <p className="mt-4 text-muted-foreground">
-                Enter your details below and let the AI create a personalized interview for you.
+                Set up your profile and let the AI create a personalized interview for you.
               </p>
             </div>
 
-            <div className="mx-auto max-w-md">
-              <Form />
+            <div className="flex justify-center">
+              <Button
+                size="lg"
+                onClick={() => navigate("/setup")}
+                className="h-12 rounded-xl px-8 text-sm font-semibold shadow-lg"
+              >
+                Set Up Your Interview
+                <ArrowRight className="size-4" />
+              </Button>
             </div>
           </div>
         </section>
@@ -312,11 +326,13 @@ export function LandingPage() {
                 {[
                   { label: "Features", id: "features" },
                   { label: "Pipeline", id: "pipeline" },
-                  { label: "Get Started", id: "form" },
+                  { label: "Get Started", id: "setup" },
                 ].map((item) => (
                   <li key={item.id}>
                     <button
-                      onClick={() => scrollTo(item.id)}
+                      onClick={() =>
+                        item.id === "setup" ? navigate("/setup") : scrollTo(item.id)
+                      }
                       className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {item.label}

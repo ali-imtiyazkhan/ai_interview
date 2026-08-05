@@ -2,6 +2,7 @@ import "./index.css";
 
 import { useLocation } from "react-router-dom";
 import { LandingPage } from "./pages/LandingPage";
+import { SetupPage } from "./pages/SetupPage";
 import { InterviewPage } from "./pages/InterviewPage";
 import { ResultPage } from "./pages/ResultPage";
 import { Layout } from "./components/Layout";
@@ -10,10 +11,10 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 export function App() {
   const location = useLocation();
-  const isLanding = location.pathname === "/";
+  const isLanding = location.pathname === "/" || location.pathname === "/setup";
 
   if (isLanding) {
-    return <LandingPage />;
+    return location.pathname === "/" ? <LandingPage /> : <SetupPage />;
   }
 
   return (
