@@ -47,7 +47,7 @@ export async function generateQuestions(params: GenerateQuestionsParams) {
   const prompt = `
 You are a technical interview assistant. Generate ${count} highly personalized interview questions based on the candidate's actual profile data below.
 
-The data comes from their GitHub, LinkedIn, and/or Resume. Extract key SKILLS, PROJECTS, and EXPERIENCE from it first, then create questions that genuinely test those specific areas.
+The data comes from their GitHub and/or Resume. Extract key SKILLS, PROJECTS, and EXPERIENCE from it first, then create questions that genuinely test those specific areas.
 
 REQUIREMENTS:
 - For PROJECT_DEEP_DIVE: reference specific projects from the profile (e.g., "In your project X, why did you choose Y?").

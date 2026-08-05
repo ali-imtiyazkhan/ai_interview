@@ -3,14 +3,12 @@ import {
   preInterviewSchema,
   answerSchema,
   embedGithubSchema,
-  embedLinkedinSchema,
 } from "../src/schemas/interview.schema";
 
 describe("preInterviewSchema", () => {
-  test("validates with github and linkedin URLs", () => {
+  test("validates with github URL", () => {
     const result = preInterviewSchema.safeParse({
       github: "https://github.com/octocat",
-      linkedin: "https://linkedin.com/in/johndoe",
     });
     expect(result.success).toBe(true);
   });
@@ -18,7 +16,6 @@ describe("preInterviewSchema", () => {
   test("validates with optional fields", () => {
     const result = preInterviewSchema.safeParse({
       github: "https://github.com/octocat",
-      linkedin: "https://linkedin.com/in/johndoe",
       candidateName: "Jane Doe",
       jobRole: "Senior Engineer",
       experienceLevel: "5 years",
@@ -34,7 +31,6 @@ describe("preInterviewSchema", () => {
   test("rejects invalid URLs", () => {
     const result = preInterviewSchema.safeParse({
       github: "not-a-url",
-      linkedin: "https://linkedin.com/in/johndoe",
     });
     expect(result.success).toBe(false);
   });
@@ -55,25 +51,6 @@ describe("embedGithubSchema", () => {
       githubUrl: "https://github.com/octocat",
     });
     expect(result.success).toBe(false);
-  });
-});
-
-describe("embedLinkedinSchema", () => {
-  test("validates with linkedinUrl and optional profileText", () => {
-    const result = embedLinkedinSchema.safeParse({
-      interviewId: "550e8400-e29b-41d4-a716-446655440000",
-      linkedinUrl: "https://linkedin.com/in/johndoe",
-      profileText: "Senior dev with 5 years experience",
-    });
-    expect(result.success).toBe(true);
-  });
-
-  test("validates without profileText", () => {
-    const result = embedLinkedinSchema.safeParse({
-      interviewId: "550e8400-e29b-41d4-a716-446655440000",
-      linkedinUrl: "https://linkedin.com/in/johndoe",
-    });
-    expect(result.success).toBe(true);
   });
 });
 

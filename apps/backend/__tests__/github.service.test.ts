@@ -30,8 +30,9 @@ describe("buildRepoSummaryChunks", () => {
   });
 
   test("splits very large profiles into multiple chunks", () => {
+    const base = sampleRepos[0]!;
     const manyRepos = Array.from({ length: 200 }, (_, i) => ({
-      ...sampleRepos[0],
+      ...base,
       name: `repo-${i}`,
       description: "A".repeat(200),
     }));
@@ -42,7 +43,7 @@ describe("buildRepoSummaryChunks", () => {
 
 describe("buildRepoSummaryLine", () => {
   test("includes key repo metadata on one line", () => {
-    const line = buildRepoSummaryLine(sampleRepos[0]);
+    const line = buildRepoSummaryLine(sampleRepos[0]!);
     expect(line).toContain("big-project");
     expect(line).toContain("TypeScript");
     expect(line).toContain("120 stars");

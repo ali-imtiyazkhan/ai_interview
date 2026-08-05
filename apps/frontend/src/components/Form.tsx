@@ -5,9 +5,9 @@ import { toast } from "sonner";
 import axios from "axios";
 import { cn } from "@/lib/utils";
 import { BACKEND_URL } from "@/lib/config";
-import { Code, UserRound, ArrowRight, Check, Loader, CircleAlert, FileText, Briefcase, User, Layers, Sparkles } from "lucide-react";
+import { Code, ArrowRight, Check, Loader, CircleAlert, Briefcase, User, Layers, Sparkles } from "lucide-react";
 
-type StepId = "create" | "github-embed" | "linkedin-embed" | "done";
+type StepId = "create" | "github-embed" | "done";
 
 interface Step {
   id: StepId;
@@ -17,7 +17,6 @@ interface Step {
 const steps: Step[] = [
   { id: "create", label: "Creating your interview session..." },
   { id: "github-embed", label: "Fetching & embedding GitHub repositories..." },
-  { id: "linkedin-embed", label: "Embedding LinkedIn profile..." },
 ];
 
 const inputClass =
@@ -30,9 +29,6 @@ const iconWrapClass = "pointer-events-none absolute top-1/2 left-3.5 -translate-
 export function Form() {
   const navigate = useNavigate();
   const [github, setGithub] = useState("");
-  const [linkedin, setLinkedin] = useState("");
-  const [linkedinText, setLinkedinText] = useState("");
-  const [showLinkedinInput, setShowLinkedinInput] = useState(false);
   const [candidateName, setCandidateName] = useState("");
   const [jobRole, setJobRole] = useState("");
   const [experienceLevel, setExperienceLevel] = useState("");
@@ -49,9 +45,9 @@ export function Form() {
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (!github.trim() || !linkedin.trim()) {
+    if (!github.trim()) {
       triggerShake();
-      toast.error("Please enter both GitHub and LinkedIn URLs", {
+      toast.error("Please enter your GitHub URL", {
         icon: <CircleAlert className="size-4" />,
       });
       return;
@@ -59,10 +55,9 @@ export function Form() {
 
     try {
       new URL(github);
-      new URL(linkedin);
     } catch {
       triggerShake();
-      toast.error("Please enter valid URLs", {
+      toast.error("Please enter a valid URL", {
         icon: <CircleAlert className="size-4" />,
       });
       return;
@@ -75,8 +70,6 @@ export function Form() {
       setCurrentStep(0);
       const { data } = await axios.post(`${BACKEND_URL}/api/v1/pre-interview`, {
         github,
-        linkedin,
-        linkedinProfileText: linkedinText.trim() || undefined,
         candidateName: candidateName || undefined,
         jobRole: jobRole || undefined,
         experienceLevel: experienceLevel || undefined,
@@ -90,17 +83,6 @@ export function Form() {
       });
 
       setCurrentStep(2);
-      try {
-        await axios.post(`${BACKEND_URL}/api/v1/pre-interview/embed-linkedin`, {
-          interviewId,
-          linkedinUrl: linkedin,
-          profileText: linkedinText || undefined,
-        });
-      } catch {
-        // LinkedIn embedding may fail if no data provided — non-blocking
-      }
-
-      setCurrentStep(3);
       await new Promise((r) => setTimeout(r, 400));
 
       toast.success("Interview ready!", {
@@ -144,7 +126,7 @@ export function Form() {
           <p className="mt-1 text-sm text-muted-foreground/70">
             {loading
               ? "Please wait while we gather your data"
-              : "Connect your profiles to get started"}
+              : "Connect your profile to get started"}
           </p>
         </div>
 
@@ -240,55 +222,6 @@ export function Form() {
               </div>
             </div>
           )}
-
-          <div>
-            <label htmlFor="linkedin" className={labelClass}>
-              LinkedIn Profile
-            </label>
-            <div className="relative">
-              <UserRound
-                className={cn(
-                  iconWrapClass,
-                  "size-4 transition-colors",
-                  linkedin ? "text-foreground/70" : "text-muted-foreground/40",
-                )}
-              />
-              <input
-                id="linkedin"
-                value={linkedin}
-                onChange={(e) => setLinkedin(e.target.value)}
-                placeholder="https://linkedin.com/in/username"
-                className={cn(inputClass, shake && !linkedin.trim() && "border-red-500/40")}
-                disabled={loading}
-              />
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowLinkedinInput(!showLinkedinInput)}
-              className="mt-1.5 text-xs text-muted-foreground/50 transition-colors hover:text-foreground/70"
-            >
-              {showLinkedinInput ? "− Hide manual input" : "⊕ Paste your profile instead?"}
-            </button>
-            {showLinkedinInput && (
-              <div className="mt-3 animate-expand-in space-y-1.5">
-                <label htmlFor="linkedinText" className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
-                  <FileText className="size-3.5" />
-                  Your LinkedIn Profile (headline, skills, experience, education)
-                </label>
-                <textarea
-                  id="linkedinText"
-                  value={linkedinText}
-                  onChange={(e) => setLinkedinText(e.target.value)}
-                  placeholder="Senior Software Engineer at Acme Corp&#10;Skills: TypeScript, React, Node.js, Python&#10;&#10;Experience:&#10;  - Lead Engineer at Acme Corp (2020-Present)&#10;    Architected microservices handling 1M+ requests/day&#10;  - Full Stack Developer at Beta Inc (2018-2020)&#10;    Built real-time collaboration features&#10;&#10;Education:&#10;  - B.S. Computer Science, University of Example (2014-2018)"
-                  className={cn(
-                    "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/30 backdrop-blur-sm transition-all outline-none resize-none focus:border-white/20 focus:bg-white/[0.07] focus:ring-1 focus:ring-white/10",
-                    "min-h-[120px]",
-                  )}
-                  disabled={loading}
-                />
-              </div>
-            )}
-          </div>
 
           <Button
             type="submit"

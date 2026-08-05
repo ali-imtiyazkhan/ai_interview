@@ -115,7 +115,7 @@
           Profile Submission
           <span class="badge badge-green">Frontend</span>
         </div>
-        <div class="step-desc">User submits GitHub &amp; LinkedIn URLs via the landing page form. Optional metadata (name, role, experience) collected.</div>
+        <div class="step-desc">User submits their GitHub URL and uploads their resume via the landing page form. Optional metadata (name, role, experience) collected.</div>
       </div>
       <div class="step-arrow"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
     </div>
@@ -128,7 +128,7 @@
           Data Ingestion
           <span class="badge badge-blue">Backend</span>
         </div>
-        <div class="step-desc">Backend fetches GitHub repos, READMEs, languages. LinkedIn data scraped or provided as manual text. All stored in PostgreSQL.</div>
+        <div class="step-desc">Backend fetches GitHub repos, READMEs, languages, and parses the resume to extract skills, projects, and experience. All stored in PostgreSQL.</div>
       </div>
       <div class="step-arrow"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
     </div>
@@ -141,7 +141,7 @@
           Embedding Pipeline
           <span class="badge badge-purple">AI</span>
         </div>
-        <div class="step-desc">Gemini Embedding API chunks &amp; vector-embeds GitHub repos (summary + deep READMEs), languages, and LinkedIn profile. Stored in pgvector.</div>
+        <div class="step-desc">Gemini Embedding API chunks &amp; vector-embeds GitHub repos (summary + deep READMEs), languages, and resume data. Stored in pgvector.</div>
       </div>
       <div class="step-arrow"><svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
     </div>
