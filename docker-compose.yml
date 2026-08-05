@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: interview
       POSTGRES_DB: interview_promo
     ports:
-      - "5433:5432"
+      - "5435:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:

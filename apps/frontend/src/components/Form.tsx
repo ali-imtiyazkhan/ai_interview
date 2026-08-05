@@ -1,5 +1,6 @@
 import { useState, useRef, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { ResumeUpload } from "./ResumeUpload";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import axios from "axios";
@@ -34,6 +35,8 @@ export function Form() {
   const [experienceLevel, setExperienceLevel] = useState("");
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState<number>(0);
+  const [interviewId, setInterviewId] = useState<string | null>(null);
+  const [showResumestep,setShowResumestep] = useState(false);
   const [shake, setShake] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -82,13 +85,10 @@ export function Form() {
         githubUrl: github,
       });
 
+      setInterviewId(interviewId);
       setCurrentStep(2);
-      await new Promise((r) => setTimeout(r, 400));
-
-      toast.success("Interview ready!", {
-        icon: <Check className="size-4" />,
-      });
-      navigate(`/interview/${interviewId}`);
+      setLoading(false)
+      setShowResumestep(true);
     } catch (error) {
       setLoading(false);
       const message = axios.isAxiosError(error)
@@ -130,7 +130,8 @@ export function Form() {
           </p>
         </div>
 
-        <form ref={formRef} onSubmit={onSubmit} className="relative space-y-4">
+        {!showResumestep && (
+          <form ref={formRef} onSubmit={onSubmit} className="relative space-y-4">
           <div>
             <label htmlFor="github" className={labelClass}>
               GitHub Profile
@@ -242,7 +243,27 @@ export function Form() {
               </span>
             )}
           </Button>
-        </form>
+          </form>
+        )}
+
+        {showResumestep && interviewId && (
+          <div className="relative mt-8 space-y-4 border-t border-white/10 pt-6">
+            <p className="text-center text-sm text-muted-foreground/70">
+              Optional: upload your resume for deeper, skill-based questions
+            </p>
+            <ResumeUpload
+              interviewId={interviewId}
+              onComplete={() => navigate(`/interview/${interviewId}`)}
+            />
+            <button
+              type="button"
+              onClick={() => navigate(`/interview/${interviewId}`)}
+              className="w-full text-center text-xs text-muted-foreground/50 transition-colors hover:text-foreground/70"
+            >
+              Skip — start interview now
+            </button>
+          </div>
+        )}
 
         {loading && (
           <div className="relative mt-8 space-y-3 border-t border-white/10 pt-6">
