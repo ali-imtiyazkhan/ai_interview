@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button } from "../components/ui/button";
 import { Textarea } from "../components/ui/textarea";
 import { toast } from "sonner";
 import axios from "axios";
@@ -313,23 +312,26 @@ export function InterviewPage() {
   if (starting) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-3xl bg-accent/10">
-            <div className="relative">
-              <div className="absolute -inset-4 animate-pulse-ring rounded-full" />
-              <Sparkles className="size-8 text-accent" />
+        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-background/40 px-16 py-14 text-center shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
+          <div className="liquid-glass pointer-events-none absolute inset-0 opacity-60" />
+          <div className="relative">
+            <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-3xl bg-accent/10">
+              <div className="relative">
+                <div className="absolute -inset-4 animate-pulse-ring rounded-full" />
+                <Sparkles className="size-8 text-accent" />
+              </div>
             </div>
-          </div>
-          <h2 className="text-2xl font-semibold text-foreground">Preparing Your Interview</h2>
-          <p className="mt-2 text-muted-foreground">Generating personalized questions based on your profile...</p>
-          <div className="mt-8 flex items-center justify-center gap-1.5">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="size-2 animate-bounce rounded-full bg-accent/60"
-                style={{ animationDelay: `${i * 150}ms`, animationDuration: "1.2s" }}
-              />
-            ))}
+            <h2 className="text-2xl font-semibold text-foreground">Preparing Your Interview</h2>
+            <p className="mt-2 text-muted-foreground">Generating personalized questions based on your profile...</p>
+            <div className="mt-8 flex items-center justify-center gap-1.5">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="size-2 animate-bounce rounded-full bg-accent/60"
+                  style={{ animationDelay: `${i * 150}ms`, animationDuration: "1.2s" }}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -339,17 +341,20 @@ export function InterviewPage() {
   if (completed) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <div className="animate-fade-in-scale text-center">
-          <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-3xl bg-emerald-500/10">
-            <div className="relative">
-              <div className="absolute -inset-4 animate-pulse-ring rounded-full border-emerald-500/30" />
-              <Check className="size-8 text-emerald-400" />
+        <div className="animate-fade-in-scale relative overflow-hidden rounded-3xl border border-white/10 bg-background/40 px-16 py-14 text-center shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
+          <div className="liquid-glass pointer-events-none absolute inset-0 opacity-60" />
+          <div className="relative">
+            <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-3xl bg-emerald-500/10">
+              <div className="relative">
+                <div className="absolute -inset-4 animate-pulse-ring rounded-full border-emerald-500/30" />
+                <Check className="size-8 text-emerald-400" />
+              </div>
             </div>
-          </div>
-          <h2 className="text-2xl font-semibold text-foreground">Interview Complete!</h2>
-          <p className="mt-2 text-muted-foreground">Redirecting to your results...</p>
-          <div className="mt-8">
-            <Loader className="mx-auto size-5 animate-spin text-accent" />
+            <h2 className="text-2xl font-semibold text-foreground">Interview Complete!</h2>
+            <p className="mt-2 text-muted-foreground">Redirecting to your results...</p>
+            <div className="mt-8">
+              <Loader className="mx-auto size-5 animate-spin text-accent" />
+            </div>
           </div>
         </div>
       </div>
@@ -371,9 +376,9 @@ export function InterviewPage() {
             <span className="font-semibold text-accent">{Math.round(progress)}%</span>
           </div>
         </div>
-        <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary/50">
+        <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/5 ring-1 ring-white/10">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-accent via-accent/80 to-accent/60 animate-gradient-shift transition-all duration-700 ease-out"
+            className="h-full rounded-full bg-gradient-to-r from-accent via-fuchsia-400 to-emerald-400 transition-all duration-700 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -387,151 +392,159 @@ export function InterviewPage() {
           direction === "next" ? "animate-fade-in-up" : "animate-fade-in-scale",
         )}
       >
-        <div className="group relative flex flex-1 flex-col rounded-2xl border border-border/50 bg-card/40 p-8 backdrop-blur-xl shadow-[0_0_60px_-20px_oklch(0.6_0.25_280/0.08)] transition-all duration-300 hover:shadow-[0_0_60px_-12px_oklch(0.6_0.25_280/0.15)]">
-          {category && (
-            <div className="mb-5">
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full border bg-gradient-to-b px-3 py-1 text-xs font-medium",
-                  category.color,
-                )}
-              >
-                <category.icon className="size-3.5" />
-                {category.label}
-              </span>
-            </div>
-          )}
+        <div className="group relative flex flex-1 flex-col overflow-hidden rounded-3xl border border-white/10 bg-background/40 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl transition-all duration-300 hover:border-white/20">
+          <div className="liquid-glass pointer-events-none absolute inset-0 opacity-60" />
+          <div className="pointer-events-none absolute -top-24 right-0 size-64 rounded-full bg-accent/10 blur-3xl" />
 
-          <h3 className="text-xl leading-relaxed text-foreground sm:text-2xl sm:leading-relaxed">
-            {currentQuestion?.question}
-          </h3>
-
-          <div className="my-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/50 to-transparent" />
-            <BrainCircuit className="size-4 text-muted-foreground/40" />
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border/50 to-transparent" />
-          </div>
-
-          <div className="flex-1 space-y-3">
-            <label htmlFor="answer" className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <AudioLines className="size-3.5" />
-              Your Answer
-            </label>
-
-            <div className="flex items-center gap-2 flex-wrap">
-              {!isRecording && !audioBlob && (
-                <button
-                  type="button"
-                  onClick={startRecording}
-                  disabled={submitting}
-                  className="flex items-center gap-2 rounded-lg border border-border/30 bg-secondary/50 px-3 py-2 text-xs font-medium text-muted-foreground transition-all hover:bg-accent/10 hover:text-accent hover:border-accent/30 disabled:opacity-50"
+          <div className="relative">
+            {category && (
+              <div className="mb-5">
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border bg-gradient-to-b px-3 py-1 text-xs font-medium",
+                    category.color,
+                  )}
                 >
-                  <Mic className="size-3.5" />
-                  Record Audio
-                </button>
-              )}
+                  <category.icon className="size-3.5" />
+                  {category.label}
+                </span>
+              </div>
+            )}
 
-              {isRecording && (
-                <div className="flex items-center gap-3 rounded-lg border border-rose-500/30 bg-rose-500/[0.08] px-3 py-2 animate-expand-in">
-                  <WaveformBars isRecording={true} />
-                  <span className="text-xs font-medium text-rose-400 tabular-nums">
-                    {formatTime(recordingTime)}
-                  </span>
-                  <div className="h-4 w-px bg-rose-500/20" />
-                  <button
-                    type="button"
-                    onClick={stopRecording}
-                    className="flex items-center gap-1.5 rounded-lg bg-rose-500/20 px-2.5 py-1.5 text-xs font-medium text-rose-400 transition-all hover:bg-rose-500/30"
-                  >
-                    <Square className="size-3" />
-                    Stop
-                  </button>
-                </div>
-              )}
+            <h3 className="text-xl leading-relaxed text-foreground sm:text-2xl sm:leading-relaxed">
+              {currentQuestion?.question}
+            </h3>
 
-              {audioBlob && !isRecording && (
-                <div className="flex items-center gap-2 animate-expand-in">
-                  <button
-                    type="button"
-                    onClick={() => audioRef.current?.play()}
-                    className="flex items-center gap-1.5 rounded-lg bg-accent/10 px-3 py-2 text-xs font-medium text-accent transition-all hover:bg-accent/20"
-                  >
-                    <Play className="size-3.5" />
-                    Play
-                  </button>
-                  <button
-                    type="button"
-                    onClick={clearAudio}
-                    className="flex items-center gap-1.5 rounded-lg bg-secondary/50 px-3 py-2 text-xs font-medium text-muted-foreground transition-all hover:bg-destructive/20 hover:text-destructive"
-                  >
-                    <Trash2 className="size-3.5" />
-                    Discard
-                  </button>
-                  <span className="text-xs text-muted-foreground/60">
-                    Audio recorded ({formatTime(recordingTime)})
-                  </span>
-                  <audio ref={audioRef} src={audioBlob ? URL.createObjectURL(audioBlob) : undefined} />
-                </div>
-              )}
-
-              {micError && (
-                <span className="text-xs text-rose-400">{micError}</span>
-              )}
+            <div className="my-6 flex items-center gap-3">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              <BrainCircuit className="size-4 text-muted-foreground/40" />
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
             </div>
 
-            <Textarea
-              ref={answerRef}
-              id="answer"
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={audioBlob ? "Add a text note (optional)..." : "Type your answer here... (Cmd+Enter to submit)"}
-              className="min-h-[120px] resize-none text-base leading-relaxed transition-all duration-200 focus:min-h-[160px] focus:border-accent/50"
-              disabled={submitting}
-            />
-            <p className="text-xs text-muted-foreground/60">
-              Press <kbd className="rounded border border-border/30 bg-secondary/50 px-1.5 py-0.5 text-[10px] font-mono">Cmd</kbd> + <kbd className="rounded border border-border/30 bg-secondary/50 px-1.5 py-0.5 text-[10px] font-mono">Enter</kbd> to submit
-            </p>
-          </div>
+            <div className="flex-1 space-y-3">
+              <label htmlFor="answer" className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <AudioLines className="size-3.5" />
+                Your Answer
+              </label>
 
-          <div className="mt-6 flex items-center gap-3">
-            <Button
-              variant="accent"
-              onClick={handleSubmit}
-              disabled={submitting || (!answer.trim() && !audioBlob)}
-              className="relative h-11 flex-1 rounded-xl text-sm font-semibold"
-            >
-              {submitting ? (
-                <span className="flex items-center gap-2">
-                  <Loader className="size-4 animate-spin" />
-                  Evaluating...
-                </span>
-              ) : currentIndex + 1 < totalQuestions ? (
-                <span className="flex items-center gap-2">
-                  Submit & Next
-                  <ArrowRight className="size-4" />
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  <Send className="size-4" />
-                  Submit & Finish
-                </span>
-              )}
-            </Button>
+              <div className="flex items-center gap-2 flex-wrap">
+                {!isRecording && !audioBlob && (
+                  <button
+                    type="button"
+                    onClick={startRecording}
+                    disabled={submitting}
+                    className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-muted-foreground transition-all hover:border-accent/30 hover:bg-accent/10 hover:text-accent disabled:opacity-50"
+                  >
+                    <Mic className="size-3.5" />
+                    Record Audio
+                  </button>
+                )}
 
-            <button
-              type="button"
-              onClick={handleSkip}
-              disabled={submitting}
-              className="flex items-center gap-1.5 rounded-lg border border-border/30 px-3 py-2 text-xs font-medium text-muted-foreground transition-all hover:bg-accent/10 hover:text-accent disabled:opacity-50"
-            >
-              Skip
-              <ArrowRight className="size-3.5" />
-            </button>
+                {isRecording && (
+                  <div className="flex items-center gap-3 rounded-lg border border-rose-500/30 bg-rose-500/[0.08] px-3 py-2 animate-expand-in">
+                    <WaveformBars isRecording={true} />
+                    <span className="text-xs font-medium text-rose-400 tabular-nums">
+                      {formatTime(recordingTime)}
+                    </span>
+                    <div className="h-4 w-px bg-rose-500/20" />
+                    <button
+                      type="button"
+                      onClick={stopRecording}
+                      className="flex items-center gap-1.5 rounded-lg bg-rose-500/20 px-2.5 py-1.5 text-xs font-medium text-rose-400 transition-all hover:bg-rose-500/30"
+                    >
+                      <Square className="size-3" />
+                      Stop
+                    </button>
+                  </div>
+                )}
 
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground/50">
-              <Clock className="size-3.5" />
-              <span>{totalQuestions - currentIndex - 1} remaining</span>
+                {audioBlob && !isRecording && (
+                  <div className="flex items-center gap-2 animate-expand-in">
+                    <button
+                      type="button"
+                      onClick={() => audioRef.current?.play()}
+                      className="flex items-center gap-1.5 rounded-lg bg-accent/10 px-3 py-2 text-xs font-medium text-accent transition-all hover:bg-accent/20"
+                    >
+                      <Play className="size-3.5" />
+                      Play
+                    </button>
+                    <button
+                      type="button"
+                      onClick={clearAudio}
+                      className="flex items-center gap-1.5 rounded-lg bg-white/5 px-3 py-2 text-xs font-medium text-muted-foreground transition-all hover:bg-destructive/20 hover:text-destructive"
+                    >
+                      <Trash2 className="size-3.5" />
+                      Discard
+                    </button>
+                    <span className="text-xs text-muted-foreground/60">
+                      Audio recorded ({formatTime(recordingTime)})
+                    </span>
+                    <audio ref={audioRef} src={audioBlob ? URL.createObjectURL(audioBlob) : undefined} />
+                  </div>
+                )}
+
+                {micError && (
+                  <span className="text-xs text-rose-400">{micError}</span>
+                )}
+              </div>
+
+              <Textarea
+                ref={answerRef}
+                id="answer"
+                value={answer}
+                onChange={(e) => setAnswer(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={audioBlob ? "Add a text note (optional)..." : "Type your answer here... (Cmd+Enter to submit)"}
+                className="min-h-[120px] resize-none border-white/10 bg-white/5 text-base leading-relaxed backdrop-blur-sm transition-all duration-200 focus:min-h-[160px] focus:border-accent/50 focus:ring-4 focus:ring-accent/10"
+                disabled={submitting}
+              />
+              <p className="text-xs text-muted-foreground/60">
+                Press <kbd className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-mono">Cmd</kbd> + <kbd className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-mono">Enter</kbd> to submit
+              </p>
+            </div>
+
+            <div className="mt-6 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={submitting || (!answer.trim() && !audioBlob)}
+                className="group relative h-11 flex-1 overflow-hidden rounded-xl text-sm font-semibold text-foreground transition-all duration-300 disabled:pointer-events-none disabled:opacity-50"
+              >
+                <span className="absolute inset-0 bg-gradient-to-r from-accent/90 via-fuchsia-500/80 to-accent/90 bg-[length:200%_100%] opacity-90 transition-all duration-500 group-hover:animate-gradient-shift group-hover:opacity-100" />
+                <span className="relative flex items-center justify-center gap-2">
+                  {submitting ? (
+                    <span className="flex items-center gap-2">
+                      <Loader className="size-4 animate-spin" />
+                      Evaluating...
+                    </span>
+                  ) : currentIndex + 1 < totalQuestions ? (
+                    <span className="flex items-center gap-2">
+                      Submit & Next
+                      <ArrowRight className="size-4" />
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <Send className="size-4" />
+                      Submit & Finish
+                    </span>
+                  )}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSkip}
+                disabled={submitting}
+                className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-muted-foreground transition-all hover:bg-white/10 hover:text-foreground disabled:opacity-50"
+              >
+                Skip
+                <ArrowRight className="size-3.5" />
+              </button>
+
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground/50">
+                <Clock className="size-3.5" />
+                <span>{totalQuestions - currentIndex - 1} remaining</span>
+              </div>
             </div>
           </div>
         </div>
