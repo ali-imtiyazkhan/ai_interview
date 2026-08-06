@@ -38,6 +38,8 @@ interface QuestionResult {
   weaknesses: string[] | null;
 }
 
+const displayFont = { fontFamily: "'Instrument Serif', serif" };
+
 interface InterviewResult {
   id: string;
   status: string;
@@ -170,7 +172,7 @@ export function ResultPage() {
           </div>
         </div>
 
-        <div className="mb-8 flex flex-col items-center gap-4 rounded-2xl border border-border/50 bg-card/40 p-8 backdrop-blur-xl">
+        <div className="mb-8 flex flex-col items-center gap-4 rounded-3xl border border-white/10 bg-background/40 p-8 backdrop-blur-2xl">
           <Skeleton className="size-[140px] rounded-full" />
           <div className="text-center space-y-2">
             <Skeleton className="mx-auto h-6 w-28" />
@@ -180,7 +182,7 @@ export function ResultPage() {
 
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-xl border border-border/50 p-4">
+            <div key={i} className="rounded-2xl border border-white/10 bg-background/40 p-4 backdrop-blur-xl">
               <Skeleton className="mx-auto mb-2 size-4" />
               <Skeleton className="mx-auto mb-1 h-3 w-20" />
               <Skeleton className="mx-auto h-6 w-12" />
@@ -190,7 +192,7 @@ export function ResultPage() {
 
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-2xl border border-border/50 bg-card/40 p-6 backdrop-blur-xl">
+            <div key={i} className="rounded-2xl border border-white/10 bg-background/40 p-6 backdrop-blur-xl">
               <div className="mb-4 flex items-start justify-between gap-4">
                 <div className="flex-1 space-y-3">
                   <Skeleton className="h-5 w-24 rounded-full" />
@@ -211,16 +213,19 @@ export function ResultPage() {
   if (error || !result) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-3xl bg-destructive/10">
-            <CircleAlert className="size-8 text-destructive" />
+        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-background/40 px-14 py-12 text-center shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
+          <div className="liquid-glass pointer-events-none absolute inset-0 opacity-60" />
+          <div className="relative">
+            <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-3xl bg-destructive/10">
+              <CircleAlert className="size-8 text-destructive" />
+            </div>
+            <h2 className="text-2xl font-semibold text-foreground">Something went wrong</h2>
+            <p className="mt-2 mb-6 text-muted-foreground">{error ?? "Result not found"}</p>
+            <Button onClick={() => navigate("/")} variant="glass" className="gap-2">
+              <ArrowLeft className="size-4" />
+              Back to Home
+            </Button>
           </div>
-          <h2 className="text-2xl font-semibold text-foreground">Something went wrong</h2>
-          <p className="mt-2 mb-6 text-muted-foreground">{error ?? "Result not found"}</p>
-          <Button onClick={() => navigate("/")} variant="outline" className="gap-2">
-            <ArrowLeft className="size-4" />
-            Back to Home
-          </Button>
         </div>
       </div>
     );
@@ -240,10 +245,15 @@ export function ResultPage() {
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 py-4">
       <div className="mb-8 animate-fade-in-down text-center">
-        <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-3xl bg-accent/10">
-          <Trophy className="size-8 text-accent" />
+        <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl">
+          <div className="relative">
+            <div className="absolute -inset-3 animate-glow rounded-full" />
+            <Trophy className="size-8 text-accent" />
+          </div>
         </div>
-        <h2 className="text-2xl font-semibold text-foreground">Interview Results</h2>
+        <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl" style={displayFont}>
+          Interview Results
+        </h2>
 
         {(candidateName || jobRole || experienceLevel) && (
           <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
@@ -283,12 +293,13 @@ export function ResultPage() {
         </div>
       </div>
 
-      <div className="animate-fade-in-scale relative mb-8 overflow-hidden rounded-2xl border border-border/50 bg-card/40 p-8 backdrop-blur-xl shadow-[0_0_60px_-20px_oklch(0.6_0.25_280/0.08)]">
-        <div className="absolute inset-0 bg-gradient-to-br from-accent/[0.03] to-transparent" />
-        <div className="relative flex flex-col items-center gap-4">
-          <ScoreRing score={averageScore} size={140} />
+      <div className="animate-fade-in-scale relative mb-8 overflow-hidden rounded-3xl border border-white/10 bg-background/40 p-10 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
+        <div className="liquid-glass pointer-events-none absolute inset-0 opacity-60" />
+        <div className="pointer-events-none absolute -top-24 left-1/2 size-72 -translate-x-1/2 rounded-full bg-accent/10 blur-3xl" />
+        <div className="relative flex flex-col items-center gap-5">
+          <ScoreRing score={averageScore} size={150} />
           <div className="text-center">
-            <p className={cn("text-lg font-semibold", grade.color)}>{grade.label}</p>
+            <p className={cn("text-xl font-semibold", grade.color)}>{grade.label}</p>
             <p className="text-sm text-muted-foreground">Overall Score</p>
           </div>
         </div>
@@ -302,16 +313,19 @@ export function ResultPage() {
             return (
               <div
                 key={cat}
-                className="group rounded-xl border border-border/50 bg-card/40 p-4 text-center backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:border-accent/30 hover:shadow-[0_0_30px_-8px_oklch(0.6_0.25_280/0.12)]"
+                className="group relative overflow-hidden rounded-2xl border border-white/10 bg-background/40 p-4 text-center backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:border-accent/30 hover:shadow-[0_0_40px_-8px_oklch(0.6_0.25_280/0.15)]"
               >
-                <div className={cn(
-                  "mx-auto mb-2 flex size-10 items-center justify-center rounded-lg bg-secondary/50 transition-all duration-300 group-hover:scale-110",
-                  getScoreColor(avg).replace("text-", "bg-").replace("400", "500/15"),
-                )}>
-                  <cfg.icon className={cn("size-5", getScoreColor(avg))} />
+                <div className="liquid-glass pointer-events-none absolute inset-0 opacity-40" />
+                <div className="relative">
+                  <div className={cn(
+                    "mx-auto mb-2 flex size-10 items-center justify-center rounded-lg bg-white/5 transition-all duration-300 group-hover:scale-110",
+                    getScoreColor(avg).replace("text-", "bg-").replace("400", "500/15"),
+                  )}>
+                    <cfg.icon className={cn("size-5", getScoreColor(avg))} />
+                  </div>
+                  <p className="text-xs font-medium text-muted-foreground">{cfg.label}</p>
+                  <p className={cn("mt-0.5 text-xl font-bold", getScoreColor(avg))}>{avg}</p>
                 </div>
-                <p className="text-xs font-medium text-muted-foreground">{cfg.label}</p>
-                <p className={cn("mt-0.5 text-xl font-bold", getScoreColor(avg))}>{avg}</p>
               </div>
             );
           })}
@@ -326,107 +340,114 @@ export function ResultPage() {
           return (
             <div
               key={i}
-              className="group animate-fade-in-up rounded-2xl border border-border/50 bg-card/40 p-6 backdrop-blur-xl shadow-[0_0_40px_-12px_oklch(0.6_0.25_280/0.06)] transition-all duration-300 hover:border-accent/20 hover:shadow-[0_0_40px_-8px_oklch(0.6_0.25_280/0.12)]"
+              className="group animate-fade-in-up relative overflow-hidden rounded-2xl border border-white/10 bg-background/40 p-6 backdrop-blur-xl shadow-[0_16px_50px_rgba(0,0,0,0.35)] transition-all duration-300 hover:border-white/20 hover:shadow-[0_24px_60px_rgba(0,0,0,0.5)]"
               style={{ animationDelay: `${i * 80}ms` }}
             >
-              <div className="mb-4 flex items-start justify-between gap-4">
-                <div className="flex-1 space-y-2">
-                  <span
-                    className={cn(
-                      "inline-flex items-center gap-1.5 rounded-full border bg-gradient-to-b px-3 py-1 text-xs font-medium",
-                      category.color,
-                    )}
-                  >
-                    <category.icon className="size-3.5" />
-                    {category.label}
-                  </span>
-                  <p className="text-base font-medium leading-relaxed text-foreground">
-                    {i + 1}. {q.question}
-                  </p>
-                </div>
-                {q.score !== null && (
-                  <div className="flex shrink-0 flex-col items-center rounded-xl bg-secondary/30 px-3 py-2">
-                    <span className={cn("text-xl font-bold tabular-nums", getScoreColor(q.score))}>
-                      {q.score}
+              <div className="liquid-glass pointer-events-none absolute inset-0 opacity-40" />
+              <div className="relative">
+                <div className="mb-4 flex items-start justify-between gap-4">
+                  <div className="flex-1 space-y-2">
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-full border bg-gradient-to-b px-3 py-1 text-xs font-medium",
+                        category.color,
+                      )}
+                    >
+                      <category.icon className="size-3.5" />
+                      {category.label}
                     </span>
-                    <span className={cn("text-[10px] font-medium uppercase tracking-wider", qGrade.color)}>{qGrade.label}</span>
+                    <p className="text-base font-medium leading-relaxed text-foreground">
+                      {i + 1}. {q.question}
+                    </p>
+                  </div>
+                  {q.score !== null && (
+                    <div className="flex shrink-0 flex-col items-center rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+                      <span className={cn("text-xl font-bold tabular-nums", getScoreColor(q.score))}>
+                        {q.score}
+                      </span>
+                      <span className={cn("text-[10px] font-medium uppercase tracking-wider", qGrade.color)}>{qGrade.label}</span>
+                    </div>
+                  )}
+                </div>
+
+                {q.answer ? (
+                  <div className="mb-3 space-y-1.5">
+                    <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                      <Check className="size-3.5" />
+                      Your Answer
+                    </p>
+                    <p className="rounded-lg bg-white/5 px-3 py-2 text-sm leading-relaxed text-foreground/80">
+                      {q.answer}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mb-3 space-y-1.5">
+                    <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                      <CircleAlert className="size-3.5" />
+                      Not Answered
+                    </p>
+                  </div>
+                )}
+
+                {q.audioUrl && (
+                  <div className="mb-3 space-y-1.5">
+                    <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                      <Play className="size-3.5" />
+                      Recording
+                    </p>
+                    <audio controls src={q.audioUrl} className="h-8 w-full" />
+                  </div>
+                )}
+
+                {q.feedback && (
+                  <div className="mb-3 space-y-1.5">
+                    <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                      <Sparkles className="size-3.5" />
+                      Feedback
+                    </p>
+                    <p className="text-sm leading-relaxed text-foreground/70">{q.feedback}</p>
+                  </div>
+                )}
+
+                {q.strengths && q.strengths.length > 0 && (
+                  <div className="mb-2 space-y-1">
+                    <p className="text-xs font-medium text-emerald-400">Strengths</p>
+                    <ul className="space-y-0.5">
+                      {q.strengths.map((s, j) => (
+                        <li key={j} className="flex items-start gap-1.5 text-sm text-foreground/70">
+                          <span className="mt-1 size-1.5 shrink-0 rounded-full bg-emerald-500/60" />
+                          {s}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {q.weaknesses && q.weaknesses.length > 0 && (
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-rose-400">Areas for Improvement</p>
+                    <ul className="space-y-0.5">
+                      {q.weaknesses.map((w, j) => (
+                        <li key={j} className="flex items-start gap-1.5 text-sm text-foreground/70">
+                          <span className="mt-1 size-1.5 shrink-0 rounded-full bg-rose-500/60" />
+                          {w}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>
-
-              {q.answer ? (
-                <div className="mb-3 space-y-1.5">
-                  <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                    <Check className="size-3.5" />
-                    Your Answer
-                  </p>
-                  <p className="rounded-lg bg-secondary/30 px-3 py-2 text-sm leading-relaxed text-foreground/80">
-                    {q.answer}
-                  </p>
-                </div>
-              ) : (
-                <div className="mb-3 space-y-1.5">
-                  <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                    <CircleAlert className="size-3.5" />
-                    Not Answered
-                  </p>
-                </div>
-              )}
-
-              {q.audioUrl && (
-                <div className="mb-3 space-y-1.5">
-                  <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                    <Play className="size-3.5" />
-                    Recording
-                  </p>
-                  <audio controls src={q.audioUrl} className="h-8 w-full" />
-                </div>
-              )}
-
-              {q.feedback && (
-                <div className="mb-3 space-y-1.5">
-                  <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                    <Sparkles className="size-3.5" />
-                    Feedback
-                  </p>
-                  <p className="text-sm leading-relaxed text-foreground/70">{q.feedback}</p>
-                </div>
-              )}
-
-              {q.strengths && q.strengths.length > 0 && (
-                <div className="mb-2 space-y-1">
-                  <p className="text-xs font-medium text-emerald-400">Strengths</p>
-                  <ul className="space-y-0.5">
-                    {q.strengths.map((s, j) => (
-                      <li key={j} className="flex items-start gap-1.5 text-sm text-foreground/70">
-                        <span className="mt-1 size-1.5 shrink-0 rounded-full bg-emerald-500/60" />
-                        {s}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {q.weaknesses && q.weaknesses.length > 0 && (
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-rose-400">Areas for Improvement</p>
-                  <ul className="space-y-0.5">
-                    {q.weaknesses.map((w, j) => (
-                      <li key={j} className="flex items-start gap-1.5 text-sm text-foreground/70">
-                        <span className="mt-1 size-1.5 shrink-0 rounded-full bg-rose-500/60" />
-                        {w}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
           );
         })}
       </div>
 
-      <div className="mt-8 flex justify-center gap-3">
-        <Button onClick={() => navigate("/")} variant="outline" className="gap-2">
+      <div className="mt-10 flex justify-center">
+        <Button
+          onClick={() => navigate("/")}
+          variant="glass"
+          className="h-11 gap-2 rounded-xl px-8 text-sm font-semibold"
+        >
           <ArrowLeft className="size-4" />
           New Interview
         </Button>

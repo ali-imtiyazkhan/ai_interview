@@ -1,6 +1,7 @@
 import { useState, type ReactNode, type FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
+import { AmbientBackground } from "../components/AmbientBackground";
 import { toast } from "sonner";
 import axios from "axios";
 import { cn } from "@/lib/utils";
@@ -20,7 +21,6 @@ import {
   Clock,
 } from "lucide-react";
 
-const VIDEO_SRC = "/assets/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4";
 const displayFont = { fontFamily: "'Instrument Serif', serif" };
 
 const LANGUAGES = [
@@ -217,18 +217,7 @@ export function QuickStartPage() {
 
   return (
     <div className="relative min-h-screen bg-background text-foreground">
-      <video
-        className="fixed inset-0 z-0 h-full w-full object-cover"
-        src={VIDEO_SRC}
-        autoPlay
-        loop
-        muted
-        playsInline
-        aria-hidden="true"
-        tabIndex={-1}
-      />
-
-      <div className="fixed inset-0 z-[1] bg-background/40" />
+      <AmbientBackground />
 
       <header className="fixed top-0 right-0 left-0 z-50 border-b border-white/10 bg-background/60 backdrop-blur-2xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
