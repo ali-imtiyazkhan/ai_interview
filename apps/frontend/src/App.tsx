@@ -3,6 +3,7 @@ import "./index.css";
 import { useLocation } from "react-router-dom";
 import { LandingPage } from "./pages/LandingPage";
 import { SetupPage } from "./pages/SetupPage";
+import { QuickStartPage } from "./pages/QuickStartPage";
 import { InterviewPage } from "./pages/InterviewPage";
 import { ResultPage } from "./pages/ResultPage";
 import { Layout } from "./components/Layout";
@@ -11,10 +12,15 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 export function App() {
   const location = useLocation();
-  const isLanding = location.pathname === "/" || location.pathname === "/setup";
+  const isLanding =
+    location.pathname === "/" ||
+    location.pathname === "/setup" ||
+    location.pathname === "/quick-start";
 
   if (isLanding) {
-    return location.pathname === "/" ? <LandingPage /> : <SetupPage />;
+    if (location.pathname === "/") return <LandingPage />;
+    if (location.pathname === "/setup") return <SetupPage />;
+    return <QuickStartPage />;
   }
 
   return (

@@ -7,6 +7,10 @@ interface GenerateQuestionsParams {
   context: string;
   count: number;
   categories: QuestionCategory[];
+  mode?: "GENERAL" | "DSA";
+  languages?: string[];
+  difficulty?: string;
+  topics?: string[];
 }
 
 async function geminiGenerate(prompt: string): Promise<string> {
@@ -39,12 +43,49 @@ async function geminiGenerate(prompt: string): Promise<string> {
 
 export async function generateQuestions(params: GenerateQuestionsParams) {
   const { context, count, categories } = params;
+  const mode = params.mode ?? "GENERAL";
+  const languages = params.languages ?? [];
+  const difficulty = params.difficulty ?? "Medium";
+  const topics = params.topics ?? [];
 
   const categoriesList = categories.length > 0
     ? categories.join(", ")
     : "TECHNICAL, BEHAVIORAL, PROJECT_DEEP_DIVE";
 
-  const prompt = `
+  let prompt: string;
+
+  if (mode === "DSA") {
+    const topicList = topics.length > 0 ? topics.join(", ") : "fundamental data structures and algorithms";
+    prompt = `
+You are a DSA interview coach. Generate ${count} coding problems at ${difficulty} difficulty covering these topics: ${topicList}.
+
+For each problem include:
+- A clear problem statement with realistic constraints.
+- Example input/output test cases inline in the statement.
+
+Return ONLY a JSON array of objects with "question" and "category" fields.
+The "category" must be exactly: DSA.
+`.trim();
+  } else if (languages.length > 0) {
+    prompt = `
+You are a technical interview assistant. Generate ${count} personalized interview questions for a candidate preparing for a ${context.trim() || "software engineering"} role.
+
+The candidate's stack: ${languages.join(", ")}.
+Experience level: ${context.trim() || "not specified"}.
+
+REQUIREMENTS:
+- For TECHNICAL: test language-specific and framework-specific knowledge for the stack above.
+- For SKILL_ASSESSMENT: probe depth of skill in the candidate's languages.
+- For BEHAVIORAL: tie to the candidate's experience level.
+- For SYSTEM_DESIGN: scope appropriately for the candidate's experience.
+
+Categories to distribute evenly: ${categoriesList}.
+
+Return ONLY a JSON array of objects with "question" and "category" fields.
+The "category" must be one of: ${categoriesList}.
+`.trim();
+  } else {
+    prompt = `
 You are a technical interview assistant. Generate ${count} highly personalized interview questions based on the candidate's actual profile data below.
 
 The data comes from their GitHub and/or Resume. Extract key SKILLS, PROJECTS, and EXPERIENCE from it first, then create questions that genuinely test those specific areas.
@@ -64,6 +105,7 @@ ${context}
 Return ONLY a JSON array of objects with "question" and "category" fields.
 The "category" must be one of: ${categoriesList}.
 `.trim();
+  }
 
   const text = await geminiGenerate(prompt);
   return parseQuestionsResponse(text);

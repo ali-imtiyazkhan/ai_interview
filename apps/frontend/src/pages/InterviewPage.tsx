@@ -25,6 +25,7 @@ import {
   Play,
   Trash2,
   AudioLines,
+  Binary,
 } from "lucide-react";
 
 interface Question {
@@ -41,6 +42,7 @@ const categoryConfig: Record<string, { label: string; icon: typeof Code; color: 
   SKILL_ASSESSMENT: { label: "Skill Assessment", icon: Lightbulb, color: "from-purple-500/20 to-purple-600/10 text-purple-400 border-purple-500/30" },
   SYSTEM_DESIGN: { label: "System Design", icon: Terminal, color: "from-rose-500/20 to-rose-600/10 text-rose-400 border-rose-500/30" },
   CODING: { label: "Coding", icon: BrainCircuit, color: "from-cyan-500/20 to-cyan-600/10 text-cyan-400 border-cyan-500/30" },
+  DSA: { label: "DSA Problem", icon: Binary, color: "from-fuchsia-500/20 to-fuchsia-600/10 text-fuchsia-400 border-fuchsia-500/30" },
 };
 
 function getCategoryConfig(category: string) {

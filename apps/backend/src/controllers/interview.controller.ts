@@ -45,30 +45,55 @@ export async function startInterview(req: Request, res: Response) {
     if (ctx.candidateName) metadataParts.push(`Name: ${ctx.candidateName}`);
     if (ctx.jobRole) metadataParts.push(`Target Role: ${ctx.jobRole}`);
     if (ctx.experienceLevel) metadataParts.push(`Experience Level: ${ctx.experienceLevel}`);
+    if (ctx.languages?.length) metadataParts.push(`Languages: ${ctx.languages.join(", ")}`);
+    if (ctx.difficulty) metadataParts.push(`Difficulty: ${ctx.difficulty}`);
+    if (ctx.topics?.length) metadataParts.push(`Topics: ${ctx.topics.join(", ")}`);
 
-    const resumeChunks = ctx.embeddings
-      .filter((e: Embedding) => e.sourceType === "RESUME")
-      .map((e: Embedding) => e.chunkText);
+    const hasEmbeddings = ctx.embeddings.length > 0;
 
-    const githubChunks = ctx.embeddings
-      .filter((e: Embedding) => e.sourceType === "GITHUB_REPO" || e.sourceType === "GITHUB_README")
-      .map((e: Embedding) => e.chunkText);
+    let context: string;
+    let categories: string[];
+    const mode = ctx.mode ?? "GENERAL";
 
-    const resumeRepoChunks = ctx.embeddings
-      .filter((e: Embedding) => e.sourceType === "RESUME_REPO")
-      .map((e: Embedding) => e.chunkText);
+    if (mode === "DSA") {
+      categories = ["DSA"];
+      context = [
+        ...metadataParts,
+        `Generate ${5} DSA problems at ${ctx.difficulty ?? "Medium"} difficulty`,
+      ].join("\n");
+    } else if (hasEmbeddings) {
+      const resumeChunks = ctx.embeddings
+        .filter((e: Embedding) => e.sourceType === "RESUME")
+        .map((e: Embedding) => e.chunkText);
 
-    const sections: string[] = [...metadataParts];
-    if (resumeChunks.length) sections.push("=== RESUME DATA ===\n" + resumeChunks.join("\n"));
-    if (resumeRepoChunks.length) sections.push("=== RESUME REPOS (projects from resume) ===\n" + resumeRepoChunks.join("\n"));
-    if (githubChunks.length) sections.push("=== GITHUB DATA ===\n" + githubChunks.join("\n"));
+      const githubChunks = ctx.embeddings
+        .filter((e: Embedding) => e.sourceType === "GITHUB_REPO" || e.sourceType === "GITHUB_README")
+        .map((e: Embedding) => e.chunkText);
 
-    const context = sections.join("\n\n");
+      const resumeRepoChunks = ctx.embeddings
+        .filter((e: Embedding) => e.sourceType === "RESUME_REPO")
+        .map((e: Embedding) => e.chunkText);
+
+      const sections: string[] = [...metadataParts];
+      if (resumeChunks.length) sections.push("=== RESUME DATA ===\n" + resumeChunks.join("\n"));
+      if (resumeRepoChunks.length) sections.push("=== RESUME REPOS (projects from resume) ===\n" + resumeRepoChunks.join("\n"));
+      if (githubChunks.length) sections.push("=== GITHUB DATA ===\n" + githubChunks.join("\n"));
+
+      context = sections.join("\n\n") || "No candidate data available yet";
+      categories = ["TECHNICAL", "BEHAVIORAL", "PROJECT_DEEP_DIVE", "SKILL_ASSESSMENT", "SYSTEM_DESIGN"];
+    } else {
+      categories = ["TECHNICAL", "SKILL_ASSESSMENT", "BEHAVIORAL", "SYSTEM_DESIGN"];
+      context = metadataParts.join("\n") || "Software engineering";
+    }
 
     const generated = await generateQuestions({
-      context: context || "No candidate data available yet",
+      context,
       count: 5,
-      categories: ["TECHNICAL", "BEHAVIORAL", "PROJECT_DEEP_DIVE", "SKILL_ASSESSMENT", "SYSTEM_DESIGN"],
+      categories: categories as Question["category"][],
+      mode: mode as "GENERAL" | "DSA",
+      languages: ctx.languages ?? [],
+      difficulty: ctx.difficulty ?? undefined,
+      topics: ctx.topics ?? [],
     });
 
     const questions = await prisma.$transaction(async (tx) => {

@@ -1,11 +1,15 @@
 import { Router } from "express";
 import { validate } from "../middleware/validate";
-import { preInterviewSchema, answerSchema, embedGithubSchema } from "../schemas/interview.schema";
+import { preInterviewSchema, answerSchema, embedGithubSchema, quickStartSchema } from "../schemas/interview.schema";
 import { createPreInterview } from "../controllers/preInterview.controller";
 import { startInterview, submitAnswer, getResult } from "../controllers/interview.controller";
 import { embedGithubData } from "../controllers/github.controller";
+import { createQuickStartInterview } from "../controllers/quickStart.controller";
 
 const router = Router();
+
+// Quick-start: no GitHub needed, pick languages/difficulty/topics
+router.post("/pre-interview/quick", validate(quickStartSchema), createQuickStartInterview);
 
 // Pre-interview: submit URL, fetch public data
 router.post("/pre-interview", validate(preInterviewSchema), createPreInterview);

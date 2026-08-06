@@ -95,6 +95,12 @@ export function LandingPage() {
             >
               Get Started
             </button>
+            <button
+              onClick={() => navigate("/quick-start")}
+              className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+            >
+              Quick Start
+            </button>
           </nav>
 
           <Button
@@ -141,11 +147,11 @@ export function LandingPage() {
               <Button
                 variant="glass"
                 size="pill"
-                onClick={() => scrollTo("features")}
+                onClick={() => navigate("/quick-start")}
                 className="h-12 rounded-xl px-8 text-sm font-semibold"
               >
                 <Zap className="size-4" />
-                Explore Features
+                Quick Practice — No GitHub needed
               </Button>
             </div>
 
