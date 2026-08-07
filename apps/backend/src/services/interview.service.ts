@@ -127,6 +127,43 @@ Return a JSON object with: { "score": number (0-100), "feedback": string, "stren
   return parseEvaluationResponse(text);
 }
 
+export async function transcribeAudio(audioUrl: string): Promise<string> {
+  if (!env.geminiApiKey) return "";
+  const match = audioUrl.match(/^data:([^;]+);base64,(.+)$/);
+  if (!match?.[1] || !match[2]) return "";
+
+  const mimeType = match[1];
+  const data = match[2];
+
+  const res = await fetch(
+    `${GEMINI_BASE}/${env.geminiLlmModel}:generateContent?key=${env.geminiApiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              { inlineData: { mimeType, data } },
+              {
+                text: "Transcribe the speech in this audio verbatim, preserving the speaker's wording. Return ONLY the plain text transcript with no commentary or labels.",
+              },
+            ],
+          },
+        ],
+        generationConfig: { temperature: 0, maxOutputTokens: 4096 },
+      }),
+    },
+  );
+
+  if (!res.ok) return "";
+
+  const dataJson = (await res.json()) as {
+    candidates?: { content?: { parts?: { text?: string }[] } }[];
+  };
+  return dataJson.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? "";
+}
+
 function parseQuestionsResponse(raw: string): { question: string; category: string }[] {
   try {
     const cleaned = raw.replace(/```(?:json)?\s*/gi, "").trim();

@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { prisma } from "../config/db";
-import { generateQuestions, evaluateAnswer } from "../services/interview.service";
+import { generateQuestions, evaluateAnswer, transcribeAudio } from "../services/interview.service";
 import type { Interview, Embedding, Question, Answer } from "../../generated/prisma/client";
 
 async function buildStartResponse(interviewId: string, questions: Question[]) {
@@ -164,8 +164,11 @@ export async function submitAnswer(req: Request, res: Response) {
     const embeddings = await prisma.embedding.findMany({ where: { interviewId: id } });
     const context = embeddings.map((e: Embedding) => e.chunkText).join("\n\n");
 
+    // Voice answers: transcribe the audio if no text transcript was provided
+    const effectiveTranscript = transcript?.trim() || (audioUrl ? await transcribeAudio(audioUrl) : "");
+
     // Evaluate
-    const evaluation = await evaluateAnswer(question.question, context, transcript ?? "");
+    const evaluation = await evaluateAnswer(question.question, context, effectiveTranscript);
 
     // Save answer (strengths/weaknesses embedded in feedback as structured JSON)
     const feedbackParts = [evaluation.feedback];
@@ -180,7 +183,7 @@ export async function submitAnswer(req: Request, res: Response) {
       data: {
         questionId,
         interviewId: id,
-        transcript: transcript ?? null,
+        transcript: effectiveTranscript || null,
         audioUrl: audioUrl ?? null,
         score: evaluation.score,
         feedback: feedbackParts.join(""),
