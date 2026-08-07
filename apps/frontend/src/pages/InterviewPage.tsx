@@ -25,7 +25,17 @@ import {
   Trash2,
   AudioLines,
   Binary,
+  Volume2,
+  Ear,
 } from "lucide-react";
+import {
+  getSpeechRecognition,
+  isSpeechSynthesisSupported,
+  ensureVoices,
+  speakText,
+  stopSpeaking,
+  type SpeechRecognitionLike,
+} from "@/lib/speech";
 
 interface Question {
   id: string;
@@ -90,6 +100,11 @@ export function InterviewPage() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const answerRef = useRef<HTMLTextAreaElement>(null);
   const questionRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [autoRead, setAutoRead] = useState(true);
+  const [isDictating, setIsDictating] = useState(false);
+  const [interimTranscript, setInterimTranscript] = useState("");
 
   const currentQuestion = questions[currentIndex];
   const totalQuestions = questions.length;
@@ -149,6 +164,24 @@ export function InterviewPage() {
     }
   }, [currentIndex, loading, starting]);
 
+  useEffect(() => {
+    if (isSpeechSynthesisSupported()) {
+      ensureVoices();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (loading || starting || !currentQuestion) return;
+
+    if (autoRead && !isDictating) {
+      speakText(currentQuestion.question, () => setIsSpeaking(false));
+      setIsSpeaking(true);
+    } else {
+      stopSpeaking();
+      setIsSpeaking(false);
+    }
+  }, [currentQuestion?.id, loading, starting]);
+
   async function handleSubmit() {
     if (!answer.trim() && !audioBlob) {
       toast.error("Please provide an answer (text or audio)", {
@@ -159,6 +192,12 @@ export function InterviewPage() {
 
     if (!currentQuestion || !id) return;
 
+    if (isDictating) {
+      stopDictation();
+    }
+    stopSpeaking();
+    setIsSpeaking(false);
+    setAutoRead(false);
     setSubmitting(true);
 
     let audioUrl: string | undefined;
@@ -216,6 +255,13 @@ export function InterviewPage() {
   function handleSkip() {
     if (!currentQuestion || !id) return;
 
+    if (isDictating) {
+      stopDictation();
+    }
+    stopSpeaking();
+    setIsSpeaking(false);
+    setAutoRead(false);
+
     if (currentIndex + 1 < totalQuestions) {
       setCurrentIndex((i) => i + 1);
       setAnswer("");
@@ -239,7 +285,14 @@ export function InterviewPage() {
       streamRef.current = stream;
       setMicError(null);
 
-      const recorder = new MediaRecorder(stream, { mimeType: "audio/webm;codecs=opus" });
+      const supportedTypes = [
+        "audio/webm;codecs=opus",
+        "audio/mp4",
+        "audio/ogg;codecs=opus",
+        "audio/wav",
+      ];
+      const mimeType = supportedTypes.find((t) => MediaRecorder.isTypeSupported(t)) ?? "";
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       const chunks: BlobPart[] = [];
 
       recorder.ondataavailable = (e) => {
@@ -247,7 +300,7 @@ export function InterviewPage() {
       };
 
       recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: "audio/webm" });
+        const blob = new Blob(chunks, { type: mimeType || "audio/webm" });
         setAudioBlob(blob);
         if (timerRef.current) {
           clearInterval(timerRef.current);
@@ -288,6 +341,87 @@ export function InterviewPage() {
     setRecordingTime(0);
   }
 
+  function toggleSpeech() {
+    if (!currentQuestion) return;
+    if (isSpeaking) {
+      stopSpeaking();
+      setIsSpeaking(false);
+      setAutoRead(false);
+    } else {
+      speakText(currentQuestion.question, () => setIsSpeaking(false));
+      setIsSpeaking(true);
+      setAutoRead(true);
+    }
+  }
+
+  function startDictation() {
+    const Constructor = getSpeechRecognition();
+    if (!Constructor) {
+      setMicError("Voice input is not supported in this browser. Try Chrome or Edge.");
+      toast.error("Voice input is not supported in this browser", {
+        icon: <CircleAlert className="size-4" />,
+      });
+      return;
+    }
+
+    const recognition = new Constructor();
+    recognition.lang = "en-US";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = (event) => {
+      let finalText = "";
+      let interim = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        const alt = result?.[0];
+        if (!alt) continue;
+        if (result.isFinal) {
+          finalText += alt.transcript;
+        } else {
+          interim += alt.transcript;
+        }
+      }
+      if (finalText.trim()) {
+        setAnswer((prev) => (prev.trim() ? `${prev.trim()} ${finalText.trim()}` : finalText.trim()));
+      }
+      setInterimTranscript(interim);
+    };
+
+    recognition.onerror = (event) => {
+      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+        setIsDictating(false);
+        setMicError("Microphone access denied. Please allow microphone access.");
+        toast.error("Microphone access denied", {
+          icon: <CircleAlert className="size-4" />,
+        });
+      } else if (event.error === "audio-capture") {
+        setIsDictating(false);
+        setMicError("No microphone detected.");
+        toast.error("No microphone detected", {
+          icon: <CircleAlert className="size-4" />,
+        });
+      }
+    };
+
+    recognition.onend = () => {
+      setIsDictating(false);
+      setInterimTranscript("");
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setMicError(null);
+    setIsDictating(true);
+  }
+
+  function stopDictation() {
+    recognitionRef.current?.stop();
+    recognitionRef.current = null;
+    setIsDictating(false);
+    setInterimTranscript("");
+  }
+
   function formatTime(seconds: number): string {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
@@ -306,6 +440,9 @@ export function InterviewPage() {
         clearInterval(timerRef.current);
         timerRef.current = null;
       }
+      recognitionRef.current?.abort();
+      recognitionRef.current = null;
+      stopSpeaking();
     };
   }, []);
 
@@ -398,7 +535,7 @@ export function InterviewPage() {
 
           <div className="relative">
             {category && (
-              <div className="mb-5">
+              <div className="mb-5 flex items-center gap-2">
                 <span
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-full border bg-gradient-to-b px-3 py-1 text-xs font-medium",
@@ -408,6 +545,20 @@ export function InterviewPage() {
                   <category.icon className="size-3.5" />
                   {category.label}
                 </span>
+                <button
+                  type="button"
+                  onClick={toggleSpeech}
+                  title={isSpeaking ? "Stop reading question" : "Read question aloud"}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all",
+                    isSpeaking
+                      ? "border-accent/40 bg-accent/15 text-accent shadow-[0_0_20px_-4px_oklch(0.6_0.25_280/0.4)]"
+                      : "border-white/10 bg-white/5 text-muted-foreground hover:border-accent/30 hover:text-accent",
+                  )}
+                >
+                  {isSpeaking ? <Square className="size-3.5" /> : <Volume2 className="size-3.5" />}
+                  {isSpeaking ? "Reading..." : "Listen"}
+                </button>
               </div>
             )}
 
@@ -428,16 +579,43 @@ export function InterviewPage() {
               </label>
 
               <div className="flex items-center gap-2 flex-wrap">
-                {!isRecording && !audioBlob && (
-                  <button
-                    type="button"
-                    onClick={startRecording}
-                    disabled={submitting}
-                    className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-muted-foreground transition-all hover:border-accent/30 hover:bg-accent/10 hover:text-accent disabled:opacity-50"
-                  >
-                    <Mic className="size-3.5" />
-                    Record Audio
-                  </button>
+                {!isRecording && !audioBlob && !isDictating && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={startRecording}
+                      disabled={submitting}
+                      className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-muted-foreground transition-all hover:border-accent/30 hover:bg-accent/10 hover:text-accent disabled:opacity-50"
+                    >
+                      <Mic className="size-3.5" />
+                      Record Audio
+                    </button>
+                    <button
+                      type="button"
+                      onClick={startDictation}
+                      disabled={submitting}
+                      className="flex items-center gap-2 rounded-lg border border-accent/30 bg-accent/10 px-3 py-2 text-xs font-medium text-accent transition-all hover:bg-accent/20 disabled:opacity-50"
+                    >
+                      <Ear className="size-3.5" />
+                      Answer by Voice
+                    </button>
+                  </>
+                )}
+
+                {isDictating && (
+                  <div className="flex items-center gap-3 rounded-lg border border-accent/40 bg-accent/[0.1] px-3 py-2 animate-expand-in shadow-[0_0_30px_-8px_oklch(0.6_0.25_280/0.5)]">
+                    <WaveformBars isRecording={true} />
+                    <span className="text-xs font-medium text-accent">Listening...</span>
+                    <div className="h-4 w-px bg-accent/20" />
+                    <button
+                      type="button"
+                      onClick={stopDictation}
+                      className="flex items-center gap-1.5 rounded-lg bg-accent/20 px-2.5 py-1.5 text-xs font-medium text-accent transition-all hover:bg-accent/30"
+                    >
+                      <Square className="size-3" />
+                      Stop
+                    </button>
+                  </div>
                 )}
 
                 {isRecording && (
@@ -491,15 +669,34 @@ export function InterviewPage() {
               <Textarea
                 ref={answerRef}
                 id="answer"
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
+                value={isDictating ? `${answer}${interimTranscript ? ` ${interimTranscript}` : ""}` : answer}
+                readOnly={isDictating}
+                onChange={(e) => {
+                  if (!isDictating) setAnswer(e.target.value);
+                }}
                 onKeyDown={handleKeyDown}
-                placeholder={audioBlob ? "Add a text note (optional)..." : "Type your answer here... (Cmd+Enter to submit)"}
+                placeholder={
+                  isDictating
+                    ? "Speak your answer now..."
+                    : audioBlob
+                      ? "Add a text note (optional)..."
+                      : "Type your answer here... (Cmd+Enter to submit)"
+                }
                 className="min-h-[120px] resize-none border-white/10 bg-white/5 text-base leading-relaxed backdrop-blur-sm transition-all duration-200 focus:min-h-[160px] focus:border-accent/50 focus:ring-4 focus:ring-accent/10"
                 disabled={submitting}
               />
               <p className="text-xs text-muted-foreground/60">
-                Press <kbd className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-mono">Cmd</kbd> + <kbd className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-mono">Enter</kbd> to submit
+                {isDictating ? (
+                  "Speaking... your words appear here in real time."
+                ) : (
+                  <>
+                    Press{" "}
+                    <kbd className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-mono">Cmd</kbd>{" "}
+                    +{" "}
+                    <kbd className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-mono">Enter</kbd>{" "}
+                    to submit
+                  </>
+                )}
               </p>
             </div>
 
@@ -507,7 +704,7 @@ export function InterviewPage() {
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={submitting || (!answer.trim() && !audioBlob)}
+                disabled={submitting || isDictating || (!answer.trim() && !audioBlob)}
                 className="group relative h-11 flex-1 overflow-hidden rounded-xl text-sm font-semibold text-foreground transition-all duration-300 disabled:pointer-events-none disabled:opacity-50"
               >
                 <span className="absolute inset-0 bg-gradient-to-r from-accent/90 via-fuchsia-500/80 to-accent/90 bg-[length:200%_100%] opacity-90 transition-all duration-500 group-hover:animate-gradient-shift group-hover:opacity-100" />
