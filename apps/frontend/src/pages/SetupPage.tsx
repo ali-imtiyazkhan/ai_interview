@@ -1,7 +1,15 @@
 import { Link } from "react-router-dom";
 import { Form } from "../components/Form";
-import { AmbientBackground } from "../components/AmbientBackground";
-import { ArrowLeft, Sparkles, GitBranch, Target, BarChart3, ShieldCheck } from "lucide-react";
+import { AmbientBackground } from "@/components/ui/shared";
+import { MotionDiv } from "@/components/ui/shared";
+import {
+  ArrowLeft,
+  Sparkles,
+  GitBranch,
+  Target,
+  BarChart3,
+  ShieldCheck,
+} from "lucide-react";
 
 const displayFont = { fontFamily: "'Instrument Serif', serif" };
 
@@ -26,7 +34,7 @@ const perks = [
 export function SetupPage() {
   return (
     <div className="relative min-h-screen bg-background text-foreground">
-      <AmbientBackground />
+      <AmbientBackground variant="particles" />
 
       <header className="fixed top-0 right-0 left-0 z-50 border-b border-white/10 bg-background/60 backdrop-blur-2xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
@@ -41,7 +49,7 @@ export function SetupPage() {
 
           <Link
             to="/"
-            className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+            className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground focus-ring"
           >
             <ArrowLeft className="size-3.5" />
             Back to Home
@@ -51,7 +59,7 @@ export function SetupPage() {
 
       <main className="relative z-10 mx-auto grid min-h-screen w-full max-w-6xl items-center gap-14 px-4 pt-28 pb-20 sm:px-6 lg:grid-cols-[1fr_minmax(380px,440px)] lg:gap-20">
         {/* Left — messaging */}
-        <div className="animate-fade-rise max-w-xl">
+        <MotionDiv variant="fadeInUp" className="max-w-xl">
           <div className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-foreground backdrop-blur-xl">
             <Sparkles className="size-3.5 text-accent" />
             Setup — takes less than a minute
@@ -71,7 +79,7 @@ export function SetupPage() {
 
           <div className="mt-10 space-y-5">
             {perks.map((perk) => (
-              <div key={perk.title} className="flex items-start gap-4">
+              <MotionDiv key={perk.title} variant="fadeInUp" className="flex items-start gap-4">
                 <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl">
                   <perk.icon className="size-4.5 text-accent" />
                 </div>
@@ -81,7 +89,7 @@ export function SetupPage() {
                     {perk.description}
                   </p>
                 </div>
-              </div>
+              </MotionDiv>
             ))}
           </div>
 
@@ -95,12 +103,12 @@ export function SetupPage() {
             <span className="size-1 rounded-full bg-white/10" />
             <span>Free forever</span>
           </div>
-        </div>
+        </MotionDiv>
 
         {/* Right — form */}
-        <div className="animate-fade-rise-delay">
+        <MotionDiv variant="fadeInUp" delay={0.2} className="animate-fade-rise-delay">
           <Form />
-        </div>
+        </MotionDiv>
       </main>
     </div>
   );

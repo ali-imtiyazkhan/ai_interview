@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Button } from "../components/ui/button";
+import { Button } from "@/components/ui/shared";
+import { Celebration, ScoreRing } from "@/components/ui/shared";
 import { toast } from "sonner";
 import axios from "axios";
 import { cn } from "@/lib/utils";
 import { BACKEND_URL } from "@/lib/config";
 import { Skeleton } from "../components/Skeleton";
+import { MotionDiv, StaggeredChildren } from "@/components/ui/shared";
 import {
   ArrowLeft,
   Check,
@@ -27,6 +29,8 @@ import {
   Binary,
 } from "lucide-react";
 
+const displayFont = { fontFamily: "'Instrument Serif', serif" };
+
 interface QuestionResult {
   question: string;
   category: string;
@@ -37,8 +41,6 @@ interface QuestionResult {
   strengths: string[] | null;
   weaknesses: string[] | null;
 }
-
-const displayFont = { fontFamily: "'Instrument Serif', serif" };
 
 interface InterviewResult {
   id: string;
@@ -76,43 +78,6 @@ function getScoreRingColor(score: number | null): string {
   if (score >= 80) return "stroke-emerald-500";
   if (score >= 60) return "stroke-amber-500";
   return "stroke-rose-500";
-}
-
-function ScoreRing({ score, size = 120 }: { score: number; size?: number }) {
-  const strokeWidth = 8;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (score / 100) * circumference;
-
-  return (
-    <div className="relative inline-flex items-center justify-center">
-      <svg width={size} height={size} className="-rotate-90">
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="oklch(0.25 0 0 / 0.5)"
-          strokeWidth={strokeWidth}
-        />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          className={getScoreRingColor(score)}
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          style={{ transition: "stroke-dashoffset 1s ease-out" }}
-        />
-      </svg>
-      <span className={cn("absolute text-3xl font-bold", getScoreColor(score))}>
-        {score}
-      </span>
-    </div>
-  );
 }
 
 function getGrade(score: number | null): { label: string; color: string } {
@@ -213,7 +178,7 @@ export function ResultPage() {
   if (error || !result) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-background/40 px-14 py-12 text-center shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
+        <MotionDiv variant="fadeInScale" className="relative overflow-hidden rounded-3xl border border-white/10 bg-background/40 px-14 py-12 text-center shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
           <div className="liquid-glass pointer-events-none absolute inset-0 opacity-60" />
           <div className="relative">
             <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-3xl bg-destructive/10">
@@ -226,7 +191,7 @@ export function ResultPage() {
               Back to Home
             </Button>
           </div>
-        </div>
+        </MotionDiv>
       </div>
     );
   }
@@ -244,7 +209,7 @@ export function ResultPage() {
 
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 py-4">
-      <div className="mb-8 animate-fade-in-down text-center">
+      <MotionDiv variant="fadeInDown" className="mb-8 text-center">
         <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl">
           <div className="relative">
             <div className="absolute -inset-3 animate-glow rounded-full" />
@@ -291,28 +256,19 @@ export function ResultPage() {
             {answeredCount} of {questions.length} answered
           </span>
         </div>
-      </div>
+      </MotionDiv>
 
-      <div className="animate-fade-in-scale relative mb-8 overflow-hidden rounded-3xl border border-white/10 bg-background/40 p-10 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
-        <div className="liquid-glass pointer-events-none absolute inset-0 opacity-60" />
-        <div className="pointer-events-none absolute -top-24 left-1/2 size-72 -translate-x-1/2 rounded-full bg-accent/10 blur-3xl" />
-        <div className="relative flex flex-col items-center gap-5">
-          <ScoreRing score={averageScore} size={150} />
-          <div className="text-center">
-            <p className={cn("text-xl font-semibold", grade.color)}>{grade.label}</p>
-            <p className="text-sm text-muted-foreground">Overall Score</p>
-          </div>
-        </div>
-      </div>
+      <Celebration score={averageScore} className="relative mb-8" />
 
       {Object.keys(categoryScores).length > 0 && (
-        <div className="animate-fade-in-up mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <MotionDiv variant="fadeInUp" className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {Object.entries(categoryScores).map(([cat, scores]) => {
             const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
             const cfg = getCategoryConfig(cat);
             return (
-              <div
+              <MotionDiv
                 key={cat}
+                variant="fadeInUp"
                 className="group relative overflow-hidden rounded-2xl border border-white/10 bg-background/40 p-4 text-center backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:border-accent/30 hover:shadow-[0_0_40px_-8px_oklch(0.6_0.25_280/0.15)]"
               >
                 <div className="liquid-glass pointer-events-none absolute inset-0 opacity-40" />
@@ -326,22 +282,22 @@ export function ResultPage() {
                   <p className="text-xs font-medium text-muted-foreground">{cfg.label}</p>
                   <p className={cn("mt-0.5 text-xl font-bold", getScoreColor(avg))}>{avg}</p>
                 </div>
-              </div>
+              </MotionDiv>
             );
           })}
-        </div>
+        </MotionDiv>
       )}
 
-      <div className="space-y-4">
+      <StaggeredChildren staggerDelay={0.08} delayChildren={0.1} className="space-y-4">
         {questions.map((q, i) => {
           const category = getCategoryConfig(q.category);
           const qGrade = getGrade(q.score);
 
           return (
-            <div
+            <MotionDiv
               key={i}
+              variant="fadeInUp"
               className="group animate-fade-in-up relative overflow-hidden rounded-2xl border border-white/10 bg-background/40 p-6 backdrop-blur-xl shadow-[0_16px_50px_rgba(0,0,0,0.35)] transition-all duration-300 hover:border-white/20 hover:shadow-[0_24px_60px_rgba(0,0,0,0.5)]"
-              style={{ animationDelay: `${i * 80}ms` }}
             >
               <div className="liquid-glass pointer-events-none absolute inset-0 opacity-40" />
               <div className="relative">
@@ -437,10 +393,10 @@ export function ResultPage() {
                   </div>
                 )}
               </div>
-            </div>
+            </MotionDiv>
           );
         })}
-      </div>
+      </StaggeredChildren>
 
       <div className="mt-10 flex justify-center">
         <Button

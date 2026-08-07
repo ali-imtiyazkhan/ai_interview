@@ -1,7 +1,8 @@
 import { useState, type ReactNode, type FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Button } from "../components/ui/button";
-import { AmbientBackground } from "../components/AmbientBackground";
+import { Button } from "@/components/ui/shared";
+import { AmbientBackground, MotionDiv, WaveBars } from "@/components/ui/shared";
+import { SectionLabel, Chip, Segmented, FormCard, ProgressSteps } from "@/components/ui/shared";
 import { toast } from "sonner";
 import axios from "axios";
 import { cn } from "@/lib/utils";
@@ -60,81 +61,10 @@ const TOPICS = [
 
 type Mode = "GENERAL" | "DSA";
 
-const inputClass =
-  "w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground/40 backdrop-blur-sm transition-all duration-300 outline-none hover:border-white/20 focus:border-accent/50 focus:bg-white/[0.07] focus:ring-4 focus:ring-accent/10";
-
-const labelClass =
-  "mb-2 flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-muted-foreground/80 uppercase";
-
-const iconWrapClass = "pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2";
-
-function SectionLabel({ index, children }: { index: string; children: ReactNode }) {
-  return (
-    <div className="mb-4 flex items-center gap-2.5">
-      <span className="flex size-5 items-center justify-center rounded-md border border-accent/30 bg-accent/10 font-mono text-[10px] font-bold text-accent">
-        {index}
-      </span>
-      <span className="text-[11px] font-semibold tracking-wider text-foreground/70 uppercase">{children}</span>
-      <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
-    </div>
-  );
-}
-
-function Chip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-300",
-        active
-          ? "border-accent/50 bg-accent/15 text-accent shadow-[0_0_20px_-6px_oklch(0.6_0.25_280/0.5)]"
-          : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/25 hover:text-foreground",
-      )}
-    >
-      {active && <Check className="size-3" />}
-      {children}
-    </button>
-  );
-}
-
-function Segmented<T extends string>({
-  options,
-  value,
-  onChange,
-}: {
-  options: readonly T[];
-  value: T | "";
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div className="flex flex-wrap gap-2">
-      {options.map((option) => (
-        <button
-          key={option}
-          type="button"
-          onClick={() => onChange(option)}
-          className={cn(
-            "rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all duration-300",
-            value === option
-              ? "border-accent/50 bg-accent/15 text-accent"
-              : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/25 hover:text-foreground",
-          )}
-        >
-          {option}
-        </button>
-      ))}
-    </div>
-  );
-}
+const steps = [
+  { label: "Creating your interview session..." },
+  { label: "Generating AI questions..." },
+];
 
 export function QuickStartPage() {
   const navigate = useNavigate();
@@ -210,14 +140,9 @@ export function QuickStartPage() {
     }
   }
 
-  const steps = [
-    { label: "Creating your interview session..." },
-    { label: "Generating AI questions..." },
-  ];
-
   return (
     <div className="relative min-h-screen bg-background text-foreground">
-      <AmbientBackground />
+      <AmbientBackground variant="particles" />
 
       <header className="fixed top-0 right-0 left-0 z-50 border-b border-white/10 bg-background/60 backdrop-blur-2xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
@@ -232,7 +157,7 @@ export function QuickStartPage() {
 
           <Link
             to="/"
-            className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+            className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground focus-ring"
           >
             <ArrowLeft className="size-3.5" />
             Back to Home
@@ -241,7 +166,7 @@ export function QuickStartPage() {
       </header>
 
       <main className="relative z-10 mx-auto grid min-h-screen w-full max-w-6xl items-center gap-14 px-4 pt-28 pb-20 sm:px-6 lg:grid-cols-[1fr_minmax(380px,460px)] lg:gap-20">
-        <div className="animate-fade-rise max-w-xl">
+        <MotionDiv variant="fadeInUp" className="max-w-xl">
           <div className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-foreground backdrop-blur-xl">
             <Sparkles className="size-3.5 text-accent" />
             Quick Practice — no GitHub needed
@@ -264,7 +189,7 @@ export function QuickStartPage() {
               { icon: Binary, title: "DSA practice mode", description: "Coding problems at your chosen difficulty, answered in plain text." },
               { icon: Wand2, title: "Instant AI evaluation", description: "Every answer scored with feedback, strengths and weaknesses." },
             ].map((perk) => (
-              <div key={perk.title} className="flex items-start gap-4">
+              <MotionDiv key={perk.title} variant="fadeInUp" className="flex items-start gap-4">
                 <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl">
                   <perk.icon className="size-4.5 text-accent" />
                 </div>
@@ -274,30 +199,16 @@ export function QuickStartPage() {
                     {perk.description}
                   </p>
                 </div>
-              </div>
+              </MotionDiv>
             ))}
           </div>
-        </div>
+        </MotionDiv>
 
-        <div className="animate-fade-rise-delay">
+        <MotionDiv variant="fadeInUp" delay={0.2} className="animate-fade-rise-delay">
           <div className="relative w-full max-w-md mx-auto">
             <div className="pointer-events-none absolute -inset-8 rounded-[2rem] bg-gradient-to-br from-accent/15 via-transparent to-transparent blur-2xl" />
 
-            <div
-              className={cn(
-                "relative overflow-hidden rounded-3xl border border-white/10 bg-background/40 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl transition-all duration-500",
-                loading && "pointer-events-none",
-              )}
-            >
-              <div className="absolute inset-x-0 top-0 h-0.5 bg-white/5">
-                <div
-                  className="h-full bg-gradient-to-r from-accent via-fuchsia-400 to-emerald-400 transition-all duration-700 ease-out"
-                  style={{ width: loading ? `${((currentStep + 1) / 3) * 100}%` : "0%" }}
-                />
-              </div>
-
-              <div className="liquid-glass pointer-events-none absolute inset-0 opacity-60" />
-
+            <FormCard loading={loading} progressBar progressValue={loading ? ((currentStep + 1) / 3) * 100 : 0}>
               <div className="relative mb-8 text-center">
                 <div
                   className={cn(
@@ -400,23 +311,23 @@ export function QuickStartPage() {
                   <SectionLabel index={mode === "GENERAL" ? "04" : "05"}>About You (optional)</SectionLabel>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="relative">
-                      <User className={cn(iconWrapClass, "size-4 text-muted-foreground/40")} />
+                      <User className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 size-4 text-muted-foreground/40" />
                       <input
                         id="candidateName"
                         value={candidateName}
                         onChange={(e) => setCandidateName(e.target.value)}
                         placeholder="Your name"
-                        className={inputClass}
+                        className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground/40 backdrop-blur-sm transition-all duration-300 outline-none hover:border-white/20 focus:border-accent/50 focus:bg-white/[0.07] focus:ring-4 focus:ring-accent/10"
                       />
                     </div>
                     <div className="relative">
-                      <Briefcase className={cn(iconWrapClass, "size-4 text-muted-foreground/40")} />
+                      <Briefcase className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 size-4 text-muted-foreground/40" />
                       <input
                         id="jobRole"
                         value={jobRole}
                         onChange={(e) => setJobRole(e.target.value)}
                         placeholder="Target role"
-                        className={inputClass}
+                        className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground/40 backdrop-blur-sm transition-all duration-300 outline-none hover:border-white/20 focus:border-accent/50 focus:bg-white/[0.07] focus:ring-4 focus:ring-accent/10"
                       />
                     </div>
                   </div>
@@ -428,9 +339,11 @@ export function QuickStartPage() {
 
                 <Button
                   type="submit"
-                  variant="glass"
+                  variant="gradient"
                   size="pill"
                   disabled={loading}
+                  loading={loading}
+                  loadingText="Processing..."
                   className="group relative h-12 w-full overflow-hidden rounded-xl text-sm font-semibold text-foreground"
                 >
                   <span className="absolute inset-0 bg-gradient-to-r from-accent/90 via-fuchsia-500/80 to-accent/90 bg-[length:200%_100%] opacity-90 transition-all duration-500 group-hover:animate-gradient-shift group-hover:opacity-100" />
@@ -488,9 +401,9 @@ export function QuickStartPage() {
                   })}
                 </div>
               )}
-            </div>
+            </FormCard>
           </div>
-        </div>
+        </MotionDiv>
       </main>
     </div>
   );

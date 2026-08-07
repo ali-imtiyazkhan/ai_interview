@@ -1,5 +1,6 @@
-import { Button } from "../components/ui/button";
-import { Toaster } from "sonner";
+import { Button } from "@/components/ui/shared";
+import { MotionDiv, StaggeredChildren, PulseRing } from "@/components/ui/shared";
+import { useTheme } from "@/design/theme";
 import { useNavigate } from "react-router-dom";
 import {
   BrainCircuit,
@@ -19,6 +20,9 @@ import {
   HelpCircle,
   ClipboardCheck,
   LayoutDashboard,
+  Sun,
+  Moon,
+  Contrast,
 } from "lucide-react";
 
 const VIDEO_SRC = "/assets/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4";
@@ -46,10 +50,11 @@ const features = [
   },
 ];
 
-const displayFont = { fontFamily: "'Instrument Serif', serif" };
+const displayFontClass = "font-display";
 
 export function LandingPage() {
   const navigate = useNavigate();
+  const { resolvedTheme, setMode, colorScheme, setColorScheme, toggleTheme } = useTheme();
 
   function scrollTo(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -57,22 +62,25 @@ export function LandingPage() {
 
   return (
     <div className="relative min-h-screen bg-background text-foreground">
-      <video
-        className="fixed inset-0 z-0 h-full w-full object-cover"
-        src={VIDEO_SRC}
-        autoPlay
-        loop
-        muted
-        playsInline
-        aria-hidden="true"
-        tabIndex={-1}
-      />
-
-      <div className="fixed inset-0 z-[1] bg-background/40" />
+      <div className="fixed inset-0 z-0" aria-hidden="true">
+        <video
+          className="h-full w-full object-cover"
+          src={VIDEO_SRC}
+          poster="/assets/ambient-poster.jpg"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="none"
+          tabIndex={-1}
+        />
+        <div className="absolute inset-0 bg-background/40" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,oklch(0.6_0.25_280/0.1),transparent_70%),radial-gradient(ellipse_50%_40%_at_90%_100%,oklch(0.55_0.2_160/0.06),transparent_70%)]" />
+      </div>
 
       <header className="fixed top-0 right-0 left-0 z-50 border-b border-white/10 bg-background/60 backdrop-blur-2xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <a href="/" className="flex items-center gap-2.5 text-2xl tracking-tight text-foreground" style={displayFont} aria-label="SkillScribe home">
+          <a href="/" className="flex items-center gap-2.5 text-2xl tracking-tight text-foreground font-display" aria-label="SkillScribe home">
             SkillScribe<sup className="text-xs">&reg;</sup>
           </a>
 
@@ -84,65 +92,118 @@ export function LandingPage() {
               <button
                 key={item.href}
                 onClick={() => scrollTo(item.href.slice(1))}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+                className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground focus-ring"
               >
                 {item.label}
               </button>
             ))}
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => navigate("/setup")}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+              className="rounded-lg text-xs font-semibold"
             >
               Get Started
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => navigate("/quick-start")}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+              className="rounded-lg text-xs font-semibold"
             >
               Quick Start
-            </button>
+            </Button>
           </nav>
 
-          <Button
-            size="sm"
-            onClick={() => navigate("/setup")}
-            className="rounded-lg text-xs font-semibold"
-          >
-            Start Interview
-            <ArrowRight className="size-3.5" />
-          </Button>
+          <div className="flex items-center gap-2 md:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              {resolvedTheme === 'dark' ? <Sun className="size-5" /> : <Moon className="size-5" />}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setColorScheme(colorScheme === 'high-contrast' ? 'default' : 'high-contrast')}
+              aria-label={`Toggle high contrast mode`}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Contrast className="size-5" />
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => navigate("/setup")}
+              className="rounded-lg text-xs font-semibold"
+            >
+              Start Interview
+              <ArrowRight className="size-3.5" />
+            </Button>
+          </div>
+
+          <div className="hidden md:flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              {resolvedTheme === 'dark' ? <Sun className="size-5" /> : <Moon className="size-5" />}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setColorScheme(colorScheme === 'high-contrast' ? 'default' : 'high-contrast')}
+              aria-label={`Toggle high contrast mode`}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Contrast className="size-5" />
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => navigate("/setup")}
+              className="rounded-lg text-xs font-semibold"
+            >
+              Start Interview
+              <ArrowRight className="size-3.5" />
+            </Button>
+          </div>
         </div>
       </header>
 
       <main className="relative z-10">
         <section className="relative flex min-h-screen items-center overflow-hidden pt-16">
           <div className="mx-auto flex w-full max-w-6xl flex-col items-center px-6 text-center">
-            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-foreground">
+            <MotionDiv variant="fadeInUp" className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-foreground backdrop-blur-xl">
               <Sparkles className="size-3.5" />
               AI-Powered Mock Interviews
-            </div>
+            </MotionDiv>
 
-            <h1
-              className="animate-fade-rise max-w-5xl text-5xl font-normal leading-[0.95] tracking-[-1.5px] sm:text-7xl sm:leading-[0.95] md:text-8xl md:leading-[0.95]"
-              style={displayFont}
-            >
+            <MotionDiv variant="fadeInUp" delay={0.1} className="max-w-5xl text-5xl font-normal leading-[0.95] tracking-[-1.5px] sm:text-7xl sm:leading-[0.95] md:text-8xl md:leading-[0.95] font-display">
               Where <em className="not-italic text-muted-foreground">dreams</em> rise{" "}
               <em className="not-italic text-muted-foreground">through the silence.</em>
-            </h1>
+            </MotionDiv>
 
-            <p className="animate-fade-rise-delay mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            <MotionDiv variant="fadeInUp" delay={0.2} className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
               We&rsquo;re designing tools for deep thinkers, bold creators, and quiet rebels.
               Amid the chaos, we build digital spaces for sharp focus and inspired work.
-            </p>
+            </MotionDiv>
 
-            <div className="animate-fade-rise-delay-2 mt-10 flex flex-wrap items-center gap-3">
+            <MotionDiv variant="fadeInUp" delay={0.3} className="mt-10 flex flex-wrap items-center gap-3">
               <Button
                 size="lg"
                 onClick={() => navigate("/setup")}
-                className="h-12 rounded-xl px-8 text-sm font-semibold shadow-lg"
+                className="h-12 rounded-xl px-8 text-sm font-semibold shadow-lg group relative overflow-hidden"
               >
-                Start Your Interview
-                <ArrowRight className="size-4" />
+                <span className="absolute inset-0 bg-gradient-to-r from-accent/90 via-fuchsia-500/80 to-accent/90 bg-[length:200%_100%] opacity-90 transition-all duration-500 group-hover:animate-gradient-shift group-hover:opacity-100" />
+                <span className="relative flex items-center gap-2">
+                  Start Your Interview
+                  <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </span>
               </Button>
               <Button
                 variant="glass"
@@ -153,9 +214,9 @@ export function LandingPage() {
                 <Zap className="size-4" />
                 Quick Practice — No GitHub needed
               </Button>
-            </div>
+            </MotionDiv>
 
-            <div className="animate-fade-rise-delay-2 mt-8 flex items-center gap-6 text-sm text-muted-foreground">
+            <MotionDiv variant="fadeInUp" delay={0.4} className="mt-8 flex items-center gap-6 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <Code className="size-4" />
                 GitHub
@@ -172,13 +233,13 @@ export function LandingPage() {
                 <Target className="size-4" />
                 AI-Powered
               </span>
-            </div>
+            </MotionDiv>
           </div>
         </section>
 
         <section id="features" className="py-20 sm:py-28">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <div className="mx-auto mb-16 max-w-2xl text-center">
+            <MotionDiv variant="fadeInUp" className="mx-auto mb-16 max-w-2xl text-center">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
                 Everything You Need to{" "}
                 <span className="text-foreground">Ace the Interview</span>
@@ -186,29 +247,29 @@ export function LandingPage() {
               <p className="mt-4 text-muted-foreground">
                 From personalized question generation to detailed scorecards — every tool to help you prepare.
               </p>
-            </div>
+            </MotionDiv>
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <StaggeredChildren staggerDelay={0.1} delayChildren={0.1} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {features.map((feature, i) => (
-                <div
+                <MotionDiv
                   key={feature.title}
-                  className="group rounded-2xl border border-white/10 bg-background/40 p-6 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:bg-background/60"
-                  style={{ animationDelay: `${i * 100}ms` }}
+                  variant="fadeInUp"
+                  className="group relative overflow-hidden rounded-2xl border border-white/10 bg-background/40 p-6 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:bg-background/60 hover:shadow-[0_24px_60px_rgba(0,0,0,0.5)]"
                 >
                   <div className="mb-4 flex size-12 items-center justify-center rounded-xl bg-white/10 transition-all duration-300 group-hover:scale-110 group-hover:bg-white/20">
                     <feature.icon className="size-6 text-foreground" />
                   </div>
                   <h3 className="mb-2 text-base font-semibold">{feature.title}</h3>
                   <p className="text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
-                </div>
+                </MotionDiv>
               ))}
-            </div>
+            </StaggeredChildren>
           </div>
         </section>
 
         <section id="pipeline" className="py-20 sm:py-28">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <div className="mx-auto mb-16 max-w-2xl text-center">
+            <MotionDiv variant="fadeInUp" className="mx-auto mb-16 max-w-2xl text-center">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
                 From Profile to{" "}
                 <span className="text-foreground">Scorecard</span>
@@ -216,7 +277,7 @@ export function LandingPage() {
               <p className="mt-4 text-muted-foreground">
                 See how your data flows through the AI pipeline — fully automated, end to end.
               </p>
-            </div>
+            </MotionDiv>
 
             <div className="relative mx-auto max-w-3xl">
               <div className="absolute top-0 bottom-0 left-6 hidden w-px bg-gradient-to-b from-white/5 via-white/20 to-white/5 md:block" />
@@ -265,9 +326,15 @@ export function LandingPage() {
                   color: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
                 },
               ].map((step, i) => (
-                <div key={step.title} className="group relative flex gap-5 pb-12 last:pb-0">
-                  <div className="relative z-10 flex size-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-background/60 backdrop-blur-xl transition-all duration-300 group-hover:border-accent/30 group-hover:bg-accent/10">
+                <MotionDiv
+                  key={step.title}
+                  variant="fadeInUp"
+                  delay={i * 0.1}
+                  className="group relative flex gap-5 pb-12 last:pb-0"
+                >
+                  <div className="relative z-10 flex size-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-background/60 backdrop-blur-xl transition-all duration-300 group-hover:border-accent/30 group-hover:bg-accent/10 group-hover:shadow-glow-accent">
                     <step.icon className="size-5 text-foreground transition-all duration-300 group-hover:text-accent" />
+                    <PulseRing size={36} color="accent" className="absolute inset-0" />
                   </div>
                   <div className="flex-1 pt-1.5">
                     <div className="flex items-center gap-3">
@@ -281,7 +348,7 @@ export function LandingPage() {
                   {i < 5 && (
                     <div className="absolute top-12 left-[1.375rem] hidden h-full w-px bg-gradient-to-b from-white/10 via-white/5 to-transparent md:block" />
                   )}
-                </div>
+                </MotionDiv>
               ))}
             </div>
           </div>
@@ -289,23 +356,26 @@ export function LandingPage() {
 
         <section id="form" className="py-20 sm:py-28">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <div className="mx-auto mb-12 max-w-2xl text-center">
+            <MotionDiv variant="fadeInUp" className="mx-auto mb-12 max-w-2xl text-center">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
                 Ready to <span className="text-foreground">Practice?</span>
               </h2>
               <p className="mt-4 text-muted-foreground">
                 Set up your profile and let the AI create a personalized interview for you.
               </p>
-            </div>
+            </MotionDiv>
 
             <div className="flex justify-center">
               <Button
                 size="lg"
                 onClick={() => navigate("/setup")}
-                className="h-12 rounded-xl px-8 text-sm font-semibold shadow-lg"
+                className="h-12 rounded-xl px-8 text-sm font-semibold shadow-lg group relative overflow-hidden"
               >
-                Set Up Your Interview
-                <ArrowRight className="size-4" />
+                <span className="absolute inset-0 bg-gradient-to-r from-accent/90 via-fuchsia-500/80 to-accent/90 bg-[length:200%_100%] opacity-90 transition-all duration-500 group-hover:animate-gradient-shift group-hover:opacity-100" />
+                <span className="relative flex items-center gap-2">
+                  Set Up Your Interview
+                  <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </span>
               </Button>
             </div>
           </div>
@@ -317,7 +387,7 @@ export function LandingPage() {
           <div className="grid gap-8 sm:grid-cols-3">
             <div>
               <div className="mb-4 flex items-center gap-2.5">
-                <a href="/" className="text-xl tracking-tight text-foreground" style={displayFont}>
+                <a href="/" className="text-xl tracking-tight text-foreground font-display">
                   SkillScribe<sup className="text-xs">&reg;</sup>
                 </a>
               </div>
@@ -339,7 +409,7 @@ export function LandingPage() {
                       onClick={() =>
                         item.id === "setup" ? navigate("/setup") : scrollTo(item.id)
                       }
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      className="text-sm text-muted-foreground transition-colors hover:text-foreground focus-ring rounded"
                     >
                       {item.label}
                     </button>
@@ -380,17 +450,6 @@ export function LandingPage() {
           </div>
         </div>
       </footer>
-
-      <Toaster
-        position="bottom-left"
-        toastOptions={{
-          style: {
-            background: "oklch(0.13 0 0)",
-            border: "1px solid oklch(0.25 0 0 / 0.5)",
-            color: "oklch(0.95 0 0)",
-          },
-        }}
-      />
     </div>
   );
 }

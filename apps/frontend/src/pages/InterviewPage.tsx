@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Textarea } from "../components/ui/textarea";
@@ -36,6 +37,7 @@ import {
   stopSpeaking,
   type SpeechRecognitionLike,
 } from "@/lib/speech";
+import { MotionDiv, WaveBars, Pressable } from "@/components/ui/shared";
 
 interface Question {
   id: string;
@@ -56,27 +58,6 @@ const categoryConfig: Record<string, { label: string; icon: typeof Code; color: 
 
 function getCategoryConfig(category: string) {
   return categoryConfig[category] ?? { label: category, icon: BrainCircuit, color: "from-neutral-500/20 to-neutral-600/10 text-neutral-400 border-neutral-500/30" };
-}
-
-function WaveformBars({ isRecording }: { isRecording: boolean }) {
-  return (
-    <div className="flex items-end gap-0.5 h-6">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div
-          key={i}
-          className={cn(
-            "w-1 rounded-full bg-rose-500/70 transition-all",
-            isRecording ? "animate-wave" : "opacity-30",
-          )}
-          style={{
-            height: isRecording ? `${40 + Math.sin(i * 1.5) * 30 + Math.random() * 20}%` : "30%",
-            animationDelay: `${i * 100}ms`,
-            animationDuration: `${0.6 + Math.random() * 0.4}s`,
-          }}
-        />
-      ))}
-    </div>
-  );
 }
 
 export function InterviewPage() {
@@ -449,7 +430,7 @@ export function InterviewPage() {
   if (starting) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-background/40 px-16 py-14 text-center shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
+        <MotionDiv variant="fadeInScale" className="relative overflow-hidden rounded-3xl border border-white/10 bg-background/40 px-16 py-14 text-center shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
           <div className="liquid-glass pointer-events-none absolute inset-0 opacity-60" />
           <div className="relative">
             <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-3xl bg-accent/10">
@@ -470,7 +451,7 @@ export function InterviewPage() {
               ))}
             </div>
           </div>
-        </div>
+        </MotionDiv>
       </div>
     );
   }
@@ -478,7 +459,7 @@ export function InterviewPage() {
   if (completed) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <div className="animate-fade-in-scale relative overflow-hidden rounded-3xl border border-white/10 bg-background/40 px-16 py-14 text-center shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
+        <MotionDiv variant="fadeInScale" className="relative overflow-hidden rounded-3xl border border-white/10 bg-background/40 px-16 py-14 text-center shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
           <div className="liquid-glass pointer-events-none absolute inset-0 opacity-60" />
           <div className="relative">
             <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-3xl bg-emerald-500/10">
@@ -493,14 +474,14 @@ export function InterviewPage() {
               <Loader className="mx-auto size-5 animate-spin text-accent" />
             </div>
           </div>
-        </div>
+        </MotionDiv>
       </div>
     );
   }
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col py-4">
-      <div className="mb-8">
+      <MotionDiv variant="fadeInDown" className="mb-8">
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <span className="flex size-7 items-center justify-center rounded-lg bg-accent/10 text-xs font-semibold text-accent">
@@ -514,20 +495,19 @@ export function InterviewPage() {
           </div>
         </div>
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/5 ring-1 ring-white/10">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-accent via-fuchsia-400 to-emerald-400 transition-all duration-700 ease-out"
-            style={{ width: `${progress}%` }}
+          <motion.div
+            className="h-full rounded-full bg-gradient-to-r from-accent via-fuchsia-400 to-emerald-400"
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
           />
         </div>
-      </div>
+      </MotionDiv>
 
-      <div
-        ref={questionRef}
+      <MotionDiv
         key={currentQuestion?.id ?? currentIndex}
-        className={cn(
-          "flex flex-1 flex-col transition-all duration-300",
-          direction === "next" ? "animate-fade-in-up" : "animate-fade-in-scale",
-        )}
+        variant={direction === "next" ? "fadeInUp" : "fadeInScale"}
+        className="flex flex-1 flex-col"
       >
         <div className="group relative flex flex-1 flex-col overflow-hidden rounded-3xl border border-white/10 bg-background/40 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl transition-all duration-300 hover:border-white/20">
           <div className="liquid-glass pointer-events-none absolute inset-0 opacity-60" />
@@ -545,20 +525,19 @@ export function InterviewPage() {
                   <category.icon className="size-3.5" />
                   {category.label}
                 </span>
-                <button
-                  type="button"
-                  onClick={toggleSpeech}
-                  title={isSpeaking ? "Stop reading question" : "Read question aloud"}
+                <Pressable
+                  onPress={toggleSpeech}
                   className={cn(
                     "flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all",
                     isSpeaking
                       ? "border-accent/40 bg-accent/15 text-accent shadow-[0_0_20px_-4px_oklch(0.6_0.25_280/0.4)]"
                       : "border-white/10 bg-white/5 text-muted-foreground hover:border-accent/30 hover:text-accent",
                   )}
+                  aria-label={isSpeaking ? "Stop reading question" : "Read question aloud"}
                 >
                   {isSpeaking ? <Square className="size-3.5" /> : <Volume2 className="size-3.5" />}
                   {isSpeaking ? "Reading..." : "Listen"}
-                </button>
+                </Pressable>
               </div>
             )}
 
@@ -581,79 +560,73 @@ export function InterviewPage() {
               <div className="flex items-center gap-2 flex-wrap">
                 {!isRecording && !audioBlob && !isDictating && (
                   <>
-                    <button
-                      type="button"
-                      onClick={startRecording}
+                    <Pressable
+                      onPress={startRecording}
                       disabled={submitting}
                       className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-muted-foreground transition-all hover:border-accent/30 hover:bg-accent/10 hover:text-accent disabled:opacity-50"
                     >
                       <Mic className="size-3.5" />
                       Record Audio
-                    </button>
-                    <button
-                      type="button"
-                      onClick={startDictation}
+                    </Pressable>
+                    <Pressable
+                      onPress={startDictation}
                       disabled={submitting}
                       className="flex items-center gap-2 rounded-lg border border-accent/30 bg-accent/10 px-3 py-2 text-xs font-medium text-accent transition-all hover:bg-accent/20 disabled:opacity-50"
                     >
                       <Ear className="size-3.5" />
                       Answer by Voice
-                    </button>
+                    </Pressable>
                   </>
                 )}
 
                 {isDictating && (
                   <div className="flex items-center gap-3 rounded-lg border border-accent/40 bg-accent/[0.1] px-3 py-2 animate-expand-in shadow-[0_0_30px_-8px_oklch(0.6_0.25_280/0.5)]">
-                    <WaveformBars isRecording={true} />
+                    <WaveBars active={true} color="accent" count={5} height={24} />
                     <span className="text-xs font-medium text-accent">Listening...</span>
                     <div className="h-4 w-px bg-accent/20" />
-                    <button
-                      type="button"
-                      onClick={stopDictation}
+                    <Pressable
+                      onPress={stopDictation}
                       className="flex items-center gap-1.5 rounded-lg bg-accent/20 px-2.5 py-1.5 text-xs font-medium text-accent transition-all hover:bg-accent/30"
                     >
                       <Square className="size-3" />
                       Stop
-                    </button>
+                    </Pressable>
                   </div>
                 )}
 
                 {isRecording && (
                   <div className="flex items-center gap-3 rounded-lg border border-rose-500/30 bg-rose-500/[0.08] px-3 py-2 animate-expand-in">
-                    <WaveformBars isRecording={true} />
+                    <WaveBars active={true} color="rose-500" count={5} height={24} />
                     <span className="text-xs font-medium text-rose-400 tabular-nums">
                       {formatTime(recordingTime)}
                     </span>
                     <div className="h-4 w-px bg-rose-500/20" />
-                    <button
-                      type="button"
-                      onClick={stopRecording}
+                    <Pressable
+                      onPress={stopRecording}
                       className="flex items-center gap-1.5 rounded-lg bg-rose-500/20 px-2.5 py-1.5 text-xs font-medium text-rose-400 transition-all hover:bg-rose-500/30"
                     >
                       <Square className="size-3" />
                       Stop
-                    </button>
+                    </Pressable>
                   </div>
                 )}
 
                 {audioBlob && !isRecording && (
                   <div className="flex items-center gap-2 animate-expand-in">
-                    <button
-                      type="button"
-                      onClick={() => audioRef.current?.play()}
+                    <Pressable
+                      onPress={() => audioRef.current?.play()}
                       className="flex items-center gap-1.5 rounded-lg bg-accent/10 px-3 py-2 text-xs font-medium text-accent transition-all hover:bg-accent/20"
                     >
                       <Play className="size-3.5" />
                       Play
-                    </button>
-                    <button
-                      type="button"
-                      onClick={clearAudio}
+                    </Pressable>
+                    <Pressable
+                      onPress={clearAudio}
                       className="flex items-center gap-1.5 rounded-lg bg-white/5 px-3 py-2 text-xs font-medium text-muted-foreground transition-all hover:bg-destructive/20 hover:text-destructive"
                     >
                       <Trash2 className="size-3.5" />
                       Discard
-                    </button>
+                    </Pressable>
                     <span className="text-xs text-muted-foreground/60">
                       Audio recorded ({formatTime(recordingTime)})
                     </span>
@@ -701,9 +674,8 @@ export function InterviewPage() {
             </div>
 
             <div className="mt-6 flex items-center gap-3">
-              <button
-                type="button"
-                onClick={handleSubmit}
+              <Pressable
+                onPress={handleSubmit}
                 disabled={submitting || isDictating || (!answer.trim() && !audioBlob)}
                 className="group relative h-11 flex-1 overflow-hidden rounded-xl text-sm font-semibold text-foreground transition-all duration-300 disabled:pointer-events-none disabled:opacity-50"
               >
@@ -726,17 +698,16 @@ export function InterviewPage() {
                     </span>
                   )}
                 </span>
-              </button>
+              </Pressable>
 
-              <button
-                type="button"
-                onClick={handleSkip}
+              <Pressable
+                onPress={handleSkip}
                 disabled={submitting}
                 className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-muted-foreground transition-all hover:bg-white/10 hover:text-foreground disabled:opacity-50"
               >
                 Skip
                 <ArrowRight className="size-3.5" />
-              </button>
+              </Pressable>
 
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground/50">
                 <Clock className="size-3.5" />
@@ -745,7 +716,7 @@ export function InterviewPage() {
             </div>
           </div>
         </div>
-      </div>
+      </MotionDiv>
     </div>
   );
 }
